@@ -1,18 +1,19 @@
+from UI import ui
 MAX_ROUNDS = 0
 
 def main():
     pass
 
     # show start screen
-
-    # wait for user for start press
+    UI = ui()
+    UI.main_menu()
 
     round_num = 0
     for round_num in range(MAX_ROUNDS):
         # reset unit damage and charge
 
         # show training
-
+        pass
         # w
 
     # show training, a
