@@ -1,0 +1,2 @@
+class battler():    
+    pass
