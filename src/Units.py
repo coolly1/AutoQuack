@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class TARGET(Enum):
     FRONT = 1
     BACK = 2
@@ -13,26 +14,35 @@ class TRAINABLE_STAT(Enum):
     ATK = 1
     SPK = 2
 
+class SPECIAL(Enum):
+    SPECIAL_1 = 1
+
 class UNIT:
     max_health: int
     current_health: int
+
     attack_dmg: int
     base_attack_dmg: int
     attack_dmg_growth: int
+
     special_attack: int
     base_special_attack: int
     special_attack_growth: int
+
     speed: int
     base_speed: int
+
     max_charge: int
     current_charge: int = 0
+
     path: str
     normal_target: TARGET
-    special_action: str
 
+    # for future
 
-
-    def __init__(self, max_health, attack_dmg, special_attack, speed, max_charge, normal_target: TARGET, special_action: SPECIAL, path, base_speed, base_ability_power, attack_dmg_growth, special_attack_growth):
+    def __init__(self, max_health, attack_dmg, special_attack, speed, max_charge, normal_target: TARGET,
+                 special_action: SPECIAL, path, base_speed, base_ability_power, attack_dmg_growth,
+                 special_attack_growth):
 
         self.base_max_health = max_health
         self.base_attack_dmg = attack_dmg
@@ -46,9 +56,7 @@ class UNIT:
         self.normal_target = normal_target
         self.special_action = special_action
         self.path = path
-
         self.reset_for_battle()
-        pass
 
     def train(self, stat_num: TRAINABLE_STAT, score):
         match stat_num:
@@ -67,7 +75,7 @@ class UNIT:
         self.speed = self.base_speed
         self.current_charge = 0
 
-    def execute_turn(self):
+    def execute_turn(self) -> tuple:
 
         """
         Comment for tyler-poo
@@ -79,21 +87,17 @@ class UNIT:
             return self.special_action
         else:
             self.current_charge += 1
-            return self.attack_dmg, self.normal_target, False
+            return (self.attack_dmg, self.normal_target, False)
 
     def is_dead(self):
         return self.current_health <= 0
-
 
     def apply_damage(self, amount):
         self.current_health += max(0, self.current_health - amount)
         pass
 
+
 def zoomies(caster):
-
-        
-        
-
     """Future Stats maybe
      -Defense
      -Bebuffs
@@ -104,5 +108,7 @@ def zoomies(caster):
      """
 
 
-unit_A = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT, special_action=Type)
-unit_B = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT, special_action=Type)
+unit_A = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT,
+              special_action=Type)
+unit_B = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT,
+              special_action=Type)
