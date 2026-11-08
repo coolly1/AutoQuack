@@ -2,15 +2,17 @@ from UI import ui
 from Units import load_unit
 from battler import battler
 
-MAX_ROUNDS = 2
+MAX_ROUNDS = 3
 
 def main():
     
     # pick ducks screens
 
     #init_player
-    player = [load_unit("../data/cleric.csv"), load_unit("../data/rogue.csv"),
-                  load_unit("../data/mage.csv"), load_unit("../data/knight.csv")]
+    player = [load_unit("../data/cleric.csv"), 
+              load_unit("../data/rogue.csv"),
+              load_unit("../data/mage.csv"), 
+              load_unit("../data/knight.csv")]
 
     # show start screen
     UI = ui(player)
@@ -24,10 +26,12 @@ def main():
 
         # show training, training_state = 0 exit
         training_state = -1
+        training_count = 3
         while(training_state != 0):
 
 
             training_state, unit = UI.show_training()
+            training_count -= 1
             match training_state:
                 case 1:
                     UI.minigame_1(unit)

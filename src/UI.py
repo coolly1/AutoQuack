@@ -7,15 +7,16 @@ from pygame_gui.core import ObjectID
 from Units import COLOR, UNIT, TARGET, SPECIAL
 from dataclasses import dataclass
 from pygame.math import Vector2
-from accessories import (get_accessories, animation_for, AttackContext, Pose,
+from accessories import (get_accessories, animation_for, special_animation_for, AttackContext, Pose,
                          DUCK_DISPLAY_SIZE, DUCK_SCALE, TRAINING_DUCK_SCALE)
 
 class ui():
     clock = pygame.time.Clock()
     colorPaths = {
         COLOR.YELLOW: "..\\sprites\\ducks\\skins\\yellow_duck.png",
-        #COLOR.MALLARD: "..\\sprites\\ducks\\skins\\mallard_duck.png",
-        #COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png"
+        COLOR.MALLARD: "..\\sprites\\ducks\\skins\\mallard_duck.png",
+        COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png",
+        COLOR.BROWN: "..\\sprites\\ducks\\skins\\brown_duck.png"
     }
     
     flippedColorImages2 = {}
@@ -140,7 +141,12 @@ class ui():
                                 unit = i
     
                 manager.process_events(event)
-    
+
+            if(unit > 0):
+                duck_buttons[unit].object_ids = [ObjectID(class_id="@transparent_border_btn", object_id="#selected")]
+            else:
+                for i in range(4):
+                    duck_buttons[i].object_ids = [ObjectID(class_id="@transparent_btn")]
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
@@ -352,24 +358,22 @@ class ui():
         return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
-        # TODO: special attacks will get their own animations; skip them for now
-        if is_special:
-            return
-
-        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
-
         units = list(self.player) + list(enemy_team)
         facing = 1 if active_unit < 4 else -1
         active = units[active_unit]
 
         acc = get_accessories(active.path)
-        anim = animation_for(acc)
+        anim = special_animation_for(acc) if is_special else animation_for(acc)
+        if anim is None:
+            return  # TODO: specials without their own animation yet are skipped
+
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         duration = anim.duration
         ctx = None
         if acc is not None:
             targets = [self._slot_pos(i) + DUCK_DISPLAY_SIZE / 2
                        for i, u in enumerate(units)
-                       if i != active_unit and any(u is a for a in affected_units)]
+                       if (i != active_unit or anim.targets_include_self) and any(u is a for a in affected_units)]
             ctx = AttackContext(acc, anim, self._slot_pos(active_unit), facing, targets)
 
         elapsed = 0.0
@@ -392,6 +396,8 @@ class ui():
 
             self.window_surface.blit(self.background, (0, 0))
             pose = anim.pose(progress)
+            if ctx is not None:
+                anim.draw_under(self.window_surface, progress, ctx)
             # draw the attacker last so it (and its lunge) is on top
             for i in [i for i in range(8) if i != active_unit] + [active_unit]:
                 pos = self._slot_pos(i)

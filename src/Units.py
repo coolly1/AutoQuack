@@ -1,5 +1,6 @@
 from enum import Enum
 import os
+import random
 
 def load_unit(file):
     data = []
@@ -32,6 +33,7 @@ class COLOR(Enum):
     YELLOW = 1
     MALLARD = 2
     COMS = 3
+    BROWN = 4
 
 
 class TRAINABLE_STAT(Enum):
@@ -47,9 +49,9 @@ class SPECIAL(Enum):
 
 #SPECIAL ACTION FUNCTIONS
 def soothing_quack(caster):
-    """Heals FRONT teammate based on special attack power."""
+    """Heals All teammates based on special attack power."""
     heal_amount = caster.special_attack * 2
-    return (round(heal_amount), TARGET.TEAM, False, True)
+    return (round(heal_amount), TARGET.TEAM, True, True)
 
 def final_quack(caster):
     """Deals large Single Target damage to the BACK of enemy team"""
@@ -95,7 +97,8 @@ class UNIT:
 
     path: str
     normal_target: TARGET
-    color: COLOR = COLOR.YELLOW
+    rand = random.Random()
+    color: COLOR
 
     def __init__(self, base_health, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 
@@ -112,6 +115,8 @@ class UNIT:
         self.special_action = special_action
         self.path = path
         self.reset_for_battle()
+        
+        self.color = COLOR(self.rand.randint(1, 4))
 
     def train(self, stat_num: TRAINABLE_STAT, score):
         match stat_num:
