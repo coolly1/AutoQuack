@@ -1,8 +1,12 @@
 from enum import Enum
+
+
 def load_unit(file):
     data = []
     with open(file, "r") as file:
         content = file.read()
+        content = file.read()
+
         data = content.strip().split(",")
 
     unit = UNIT(base_health=int(data[0]), base_attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), base_special_attack=int(data[3]), special_attack_growth=int(data[4]),
@@ -29,14 +33,14 @@ class TRAINABLE_STAT(Enum):
     SPK = 2
 
 class SPECIAL(Enum):
-    HEALING_QUACK = "Soothing Quack"
+    SOOTHING_QUACK = "Soothing Quack"
     FINAL_QUACK = "The Final Quack"
     BILL_BEATDOWN = "Bill Beatdown"
     ABYSSAL_SPLASH = "Abyssal Splash"
     DUCKY_DEFENSE = "Ducky Defense"
 
 #SPECIAL ACTION FUNCTIONS
-def healing_quack(caster):
+def soothing_quack(caster):
     """Heals FRONT teammate based on special attack power."""
     heal_amount = caster.special_attack * 2
     return (round(heal_amount), TARGET.FRONT, False, True)
