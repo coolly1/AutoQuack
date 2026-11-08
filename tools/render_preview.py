@@ -6,6 +6,7 @@ Output PNGs go to:   tools/preview_out/
   static.png          all four classes at rest (players left, enemies right)
   training.png        the training-scene ducks (draw_duck2, half size)
   <name>_strip.png    one row per animation frame
+  special_<name>_strip.png   same, for special attacks
 
 Edit positions.json in sprites/ducks/units/<class>/ and re-run to see the change.
 """
@@ -62,14 +63,17 @@ for i in range(4):
 save(surf.subsurface(pygame.Rect(0, 340, 700, 200)).copy(), "training.png")
 
 
-def frame(active, targets, p):
+def frame(active, targets, p, special=False, top=360):
     facing = 1 if active < 4 else -1
     acc = UI.get_accessories(units[active].path)
-    anim = UI.animation_for(acc)
+    anim = UI.special_animation_for(acc) if special else UI.animation_for(acc)
+    if not anim.targets_include_self:
+        targets = [t for t in targets if t != active]
     pose = anim.pose(p)
     ctx = UI.AttackContext(acc, anim, g._slot_pos(active), facing,
                            [g._slot_pos(t) + UI.DUCK_DISPLAY_SIZE / 2 for t in targets])
     surf.fill(BG)
+    anim.draw_under(surf, p, ctx)
     for i in [i for i in range(8) if i != active] + [active]:
         pos = g._slot_pos(i)
         if i == active:
@@ -77,7 +81,7 @@ def frame(active, targets, p):
         else:
             g.draw_duck(units[i], pos.x, pos.y, i < 4)
     anim.draw_effects(surf, p, ctx)
-    return surf.subsurface(pygame.Rect(0, 360, 800, 140)).copy()
+    return surf.subsurface(pygame.Rect(0, top, 800, 500 - top)).copy()
 
 
 # (file name, active slot 0-7, target slots)
@@ -95,6 +99,17 @@ for name, active, targets in ATTACKS:
     strip = pygame.Surface((800, 140 * len(PROGRESS_STEPS)))
     for k, p in enumerate(PROGRESS_STEPS):
         strip.blit(frame(active, targets, p), (0, 140 * k))
+    save(strip, f"{name}_strip.png")
+
+# special attacks (taller crop so overlays above the ducks are visible)
+SPECIALS = [
+    ("special_cleric", 2, [0, 1, 2, 3]),
+]
+SPECIAL_STEPS = [0.1, 0.3, 0.45, 0.6, 0.75, 0.95]
+for name, active, targets in SPECIALS:
+    strip = pygame.Surface((800, 250 * len(SPECIAL_STEPS)))
+    for k, p in enumerate(SPECIAL_STEPS):
+        strip.blit(frame(active, targets, p, special=True, top=250), (0, 250 * k))
     save(strip, f"{name}_strip.png")
 
 print(f"Wrote previews to {OUT}")

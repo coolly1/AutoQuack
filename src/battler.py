@@ -23,8 +23,8 @@ class battler():
         random.seed(SEED_RAND)
 
     def get_enemy_list(self, round_idx: int) -> list[UNIT]:
-        return [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
-              load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
+        return [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
+              load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
 
     def start_battle(self, round_idx: int) -> bool:
         """

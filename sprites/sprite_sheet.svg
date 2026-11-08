@@ -24,15 +24,15 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.32708572"
-     inkscape:cx="541.14255"
-     inkscape:cy="2517.6886"
+     inkscape:zoom="0.46256907"
+     inkscape:cx="618.28605"
+     inkscape:cy="649.63272"
      inkscape:window-width="1896"
      inkscape:window-height="1209"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer2"
+     inkscape:current-layer="layer1"
      showgrid="false">
     <inkscape:grid
        id="grid2"
@@ -55,17 +55,37 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <ellipse
-       style="fill:#55d400;stroke:#44aa00;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
-       id="path23"
-       cx="47.280914"
-       cy="53.538788"
-       rx="6.2510896"
-       ry="1.5007427"
+    <g
+       id="g3"
        inkscape:label="healing_circle"
+       transform="translate(-98.495916,-90.290958)"
+       style="fill:#71c837"
        inkscape:export-filename="healing_circle.png"
        inkscape:export-xdpi="96"
-       inkscape:export-ydpi="96" />
+       inkscape:export-ydpi="96">
+      <ellipse
+         style="fill:#71c837;fill-opacity:0.75;stroke:none;stroke-width:0.752694;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+         id="path23-5"
+         cx="145.64987"
+         cy="143.26193"
+         rx="7.8419275"
+         ry="1.8826662"
+         inkscape:label="healing_circle"
+         inkscape:export-filename="healing_circle.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+      <ellipse
+         style="fill:#71c837;fill-opacity:0.75;stroke:none;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:markers stroke fill"
+         id="path23"
+         cx="145.64987"
+         cy="143.26193"
+         rx="6.2510896"
+         ry="1.5007427"
+         inkscape:label="healing_circle"
+         inkscape:export-filename="healing_circle.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
+    </g>
     <g
        id="g309-5"
        inkscape:label="duck"
@@ -567,7 +587,7 @@
          transform="matrix(1.4593855,0,0,1.4593855,-60.632381,-28.071251)" />
       <path
          sodipodi:type="star"
-         style="fill:#0066ff;fill-opacity:0.692994;stroke:none;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:stroke markers fill"
+         style="fill:#0066ff;fill-opacity:0.692994;stroke:none;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.99807799;paint-order:stroke markers fill"
          id="path10"
          inkscape:flatsided="false"
          sodipodi:sides="8"
@@ -669,7 +689,7 @@
          y="15.236176" />
     </g>
     <path
-       style="fill:#55d400;stroke:#44aa00;stroke-width:0.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       style="fill:#71c837;stroke:#8dd35f;stroke-width:0.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
        d="m 46.780915,58.943778 h -1 v -1.000001 h 1 v -1.000001 h 1 v 1.000001 h 1 v 1.000001 h -1 v 1 h -1 z"
        id="path24"
        inkscape:label="healing_particle"
@@ -679,8 +699,11 @@
     <g
        id="g26"
        style="fill:#ffdd55;fill-opacity:0.694118;stroke:#ffdd55;stroke-opacity:0.694118"
-       transform="translate(-15,-0.99999986)"
-       inkscape:label="etherial_cross">
+       transform="translate(-15.219086,-0.99999986)"
+       inkscape:label="etherial_cross"
+       inkscape:export-filename="etherial_cross.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96">
       <path
          style="fill:#ffdd55;fill-opacity:0.694118;stroke:#ffdd55;stroke-width:0.73361;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.694118;paint-order:normal"
          d="m 60.000001,81.999998 h 5 v -10 h 4 v -5 h -4 v -4 h -5 v 4 h -4 l 0.01632,5 h 3.983681 z"
@@ -706,7 +729,10 @@
        width="420.0719"
        height="314.23859"
        x="-105.03595"
-       y="350.84143" />
+       y="350.84143"
+       inkscape:export-filename="cliff_side_background.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <path
        style="fill:#483e37;fill-opacity:1;stroke:#483e37;stroke-width:16.7137;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="m -130.17564,511.39264 29.71558,-90.7187 77.36416,-28.05647 85.450944,19.85407 77.054956,-8.97935 75.16589,35.379 85.08676,-18.68132 19.94919,5.1801 42.03372,81.25433"
@@ -733,5 +759,62 @@
        style="fill:none;fill-opacity:1;stroke:#ffcc00;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48, 48;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
        d="M -105.03595,632.07574 H 315.03596"
        id="path27" />
+    <path
+       sodipodi:type="star"
+       style="fill:#6c6753;stroke:#918a6f;stroke-width:14.7773;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       id="path26"
+       inkscape:flatsided="true"
+       sodipodi:sides="7"
+       sodipodi:cx="0"
+       sodipodi:cy="771.70135"
+       sodipodi:r1="74.91497"
+       sodipodi:r2="22.474491"
+       sodipodi:arg1="0.43467022"
+       sodipodi:arg2="0.88346917"
+       inkscape:rounded="0.5"
+       inkscape:randomized="0.05"
+       d="m 65.569792,800.82232 c -12.766559,29.41935 -14.889371,40.05346 -47.593563,46.30277 -32.704192,6.24932 -33.104797,0.4213 -60.234344,-18.09282 -27.129546,-18.51413 -29.864362,-23.9089 -32.727804,-56.70814 -2.863442,-32.79924 1.115257,-43.18094 28.144028,-62.04186 27.02877,-18.86092 31.617038,-21.37934 62.583581,-12.9043 30.966544,8.47504 31.547167,11.38148 47.730229,40.1624 16.183062,28.78091 14.864431,33.8626 2.097873,63.28195 z"
+       transform="matrix(0.33709181,0,0,0.33709181,5.7887075,446.05437)"
+       inkscape:export-filename="rock1.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#6c6753;stroke:#918a6f;stroke-width:14.7773;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       id="path26-3"
+       inkscape:flatsided="true"
+       sodipodi:sides="9"
+       sodipodi:cx="0"
+       sodipodi:cy="771.70135"
+       sodipodi:r1="74.91497"
+       sodipodi:r2="23.97279"
+       sodipodi:arg1="0.43467022"
+       sodipodi:arg2="0.78373607"
+       inkscape:rounded="0.5"
+       inkscape:randomized="0.12"
+       d="m 62.23953,797.42512 c -9.062729,23.0854 -4.035305,37.82278 -27.897468,45.448 -23.862163,7.62521 -27.3529689,5.50008 -51.564129,-2.26264 -24.211159,-7.76271 -29.267567,0.53337 -42.185075,-22.27839 -12.917508,-22.81176 -17.861545,-23.19703 -18.257256,-49.66366 -0.395711,-26.46664 2.147585,-25.54825 18.35401,-44.72554 16.206424,-19.17729 28.078457,-24.47868 52.3142614,-26.2417 24.2358036,-1.76302 26.2334546,-1.28176 49.7291746,10.10357 23.495719,11.38533 29.368851,20.29692 32.30058,46.74808 2.931728,26.45115 -3.731369,19.78689 -12.794098,42.87228 z"
+       transform="matrix(0.33620626,0,0,0.33620626,86.405654,446.32877)"
+       inkscape:export-filename="rock2.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <path
+       sodipodi:type="star"
+       style="fill:#6c6753;stroke:#918a6f;stroke-width:14.7773;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       id="path26-3-6"
+       inkscape:flatsided="true"
+       sodipodi:sides="5"
+       sodipodi:cx="0"
+       sodipodi:cy="771.70135"
+       sodipodi:r1="74.91497"
+       sodipodi:r2="23.97279"
+       sodipodi:arg1="0.43467022"
+       sodipodi:arg2="1.0629887"
+       inkscape:rounded="0.35"
+       inkscape:randomized="0.4"
+       d="m 48.918484,783.83631 c -6.348963,26.78596 -21.922772,48.68728 -56.0307621,44.66118 -34.1079899,-4.02609 -78.1760659,-3.59158 -77.8040149,-32.10042 0.37205,-28.50884 29.740139,-103.27525 62.146358,-106.20801 32.4062185,-2.93276 46.552889,-27.5559 65.62077,1.18829 19.067881,28.74419 12.416612,65.673 6.067649,92.45896 z"
+       transform="matrix(0.33411996,0,0,0.33411996,172.48032,452.12385)"
+       inkscape:export-filename="rock3.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
   </g>
 </svg>
