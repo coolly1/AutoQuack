@@ -5,17 +5,17 @@ from battler import battler
 MAX_ROUNDS = 2
 
 def main():
-
-
-    # show start screen
-    UI = ui()
-    UI.main_menu()
-
+    
     # pick ducks screens
 
     #init_player
-    player = [load_unit("AutoQuack/data/mega_peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
-              load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
+    player = [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
+                  load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
+
+    # show start screen
+    UI = ui(player)
+    UI.main_menu()
+
 
     battler_obj = battler(player, UI)
 
@@ -33,7 +33,7 @@ def main():
                     UI.minigame_1(unit)
                 
         # w
-        # battler_obj.start_battle(round_num)
+        battler_obj.start_battle(round_num)
 
     # show training, a
 

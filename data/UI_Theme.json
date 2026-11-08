@@ -1,0 +1,13 @@
+{
+  "@transparent_btn": {
+    "colours": {
+      "normal_bg": "#00000000",
+      "hovered_bg": "#FFFFFF15",
+      "disabled_bg": "#00000000",
+      "selected_bg": "#00000000",
+      "active_bg": "#00000000",
+      "normal_border": "#00000000",
+      "hovered_border": "#00000000"
+    }
+  }
+}

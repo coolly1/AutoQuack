@@ -1,0 +1,2 @@
+#base_hp, base_atk, atk_growth, base_spk, spk_growth, base_speed, max_charge, path, normal_target, special_action
+60,2,3,4,2,85,5,AutoQuack/sprites/ducks/skins/basic.png,1,The Final Quack

@@ -1,0 +1,2 @@
+#base_hp, base_atk, atk_growth, base_spk, spk_growth, base_speed, max_charge, path, normal_target, special_action
+70,2,1,6,4,35,3,AutoQuack/sprites/ducks/skins/basic.png,1,Abyssal Splash
