@@ -759,7 +759,7 @@ class ui():
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        start_menu = os.path.join(BASE_DIR, "../sprites/battle.png")
         bg_image = pygame.image.load(start_menu).convert()
         bg_image = pygame.transform.scale(bg_image, (800, 600))
 
