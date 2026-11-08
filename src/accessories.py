@@ -18,10 +18,12 @@ positions.json layout:
   "hat":    {"scale": 0.75,
              "anchor": [x, y],  # pixel ON hat.png
              "mount": [x, y],   # pixel ON the duck skin
-             "art_faces_left": true}  # optional: hat.png was drawn facing left (default false)
+             "art_faces_left": true}, # optional: hat.png was drawn facing left (default false)
+  "projectile": {"scale": 2.0}      # optional: projectile.png scale (same units as the weapon scale)
 }
 """
 import json
+import math
 import os
 from dataclasses import dataclass
 
@@ -37,6 +39,7 @@ SPRITES_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__fi
 DEFAULT_CONFIG = {
     "weapon": {"scale": 1.0, "rest_angle": 0, "grip": [0, 0], "tip": [0, 0], "mount": [100, 130]},
     "hat": {"scale": 1.0, "anchor": [0, 0], "mount": [100, 20]},
+    "projectile": {"scale": 2.0},
 }
 
 
@@ -85,6 +88,7 @@ class _Oriented:
     grip: Vector2
     tip: Vector2
     hand_mount: Vector2
+    proj: pygame.Surface | None = None
 
 
 class Accessories:
@@ -96,13 +100,14 @@ class Accessories:
         try:
             with open(cfg_path, "r") as f:
                 loaded = json.load(f)
-            for section in ("weapon", "hat"):
+            for section in ("weapon", "hat", "projectile"):
                 self.config[section].update(loaded.get(section, {}))
         except (OSError, ValueError):
             pass  # empty / missing / invalid json -> defaults
 
         self.hat_src = self._load(os.path.join(folder, "hat.png"))
         self.wep_src = self._load(os.path.join(folder, "weapon.png"))
+        self.proj_src = self._load(os.path.join(folder, "projectile.png"))
         self.rest_angle = float(self.config["weapon"]["rest_angle"])
         self.name = os.path.basename(os.path.normpath(folder)).lower()
         self._cache = {}
@@ -142,7 +147,9 @@ class Accessories:
             v = Vector2(m) * DUCK_SCALE
             return Vector2(duck_w - v.x, v.y) if mirrored else v
 
-        return _Oriented(hat, anchor, mount(cfg_h["mount"]), wep, grip, tip, mount(cfg_w["mount"]))
+        proj, _ = prep(self.proj_src, self.config["projectile"]["scale"], [])
+
+        return _Oriented(hat, anchor, mount(cfg_h["mount"]), wep, grip, tip, mount(cfg_w["mount"]), proj)
 
     # ---- drawing
     def weapon_tip(self, duck_pos, mirrored, angle) -> Vector2:
@@ -165,6 +172,18 @@ class Accessories:
             return
         a = -angle if mirrored else angle
         _blit_rotated(surf, o.wep, Vector2(o.wep.get_size()) / 2, center, a)
+
+    @property
+    def has_projectile(self):
+        return self.proj_src is not None
+
+    def draw_projectile(self, surf, center, mirrored, angle=0):
+        """projectile.png centered on a screen point, optionally spinning (angle in the right-facing frame)."""
+        o = self.oriented(mirrored)
+        if o.proj is None:
+            return
+        a = -angle if mirrored else angle
+        _blit_rotated(surf, o.proj, Vector2(o.proj.get_size()) / 2, center, a)
 
     def draw_hat(self, surf, duck_pos, mirrored):
         o = self.oriented(mirrored)
@@ -226,7 +245,7 @@ class Animation:
         q = (p - launch) / (land - launch)
         start = ctx.tip_at(launch)
         for tgt in ctx.targets:
-            draw(start.lerp(tgt, q), q)
+            draw(start.lerp(tgt, q), q, tgt - start)
 
     @staticmethod
     def _impact(surf, p, land, ctx, color, span=0.12):
@@ -266,7 +285,10 @@ class MageAnim(Animation):
     def draw_effects(self, surf, p, ctx):
         r = 7
 
-        def orb(pos, q):
+        def orb(pos, q, vec):
+            if ctx.acc.has_projectile:
+                ctx.acc.draw_projectile(surf, pos, ctx.mirrored)
+                return
             pygame.draw.circle(surf, (20, 70, 200), pos, r + 3)
             pygame.draw.circle(surf, (60, 150, 255), pos, r)
             pygame.draw.circle(surf, (200, 230, 255), pos - Vector2(r * 0.3, r * 0.3), max(2, r // 3))
@@ -286,7 +308,10 @@ class ClericAnim(Animation):
     def draw_effects(self, surf, p, ctx):
         r = 6
 
-        def bolt(pos, q):
+        def bolt(pos, q, vec):
+            if ctx.acc.has_projectile:
+                ctx.acc.draw_projectile(surf, pos, ctx.mirrored, 360 * q)  # sparkle slowly turns in flight
+                return
             pygame.draw.circle(surf, (230, 180, 40), pos, r + 3)
             pygame.draw.circle(surf, (255, 245, 170), pos, r)
 
@@ -295,7 +320,7 @@ class ClericAnim(Animation):
 
 
 class RogueAnim(Animation):
-    """Wind up, throw the dagger (it spins to the target), dagger reappears in hand."""
+    """Wind up, throw the dagger (flies point-first to the target), dagger reappears in hand."""
     duration = 0.9
     LAUNCH, LAND, RETURN = 0.3, 0.65, 0.85
 
@@ -304,9 +329,14 @@ class RogueAnim(Animation):
         return Pose(angle=angle, weapon_visible=not (self.LAUNCH <= p < self.RETURN))
 
     def draw_effects(self, surf, p, ctx):
-        def dagger(pos, q):
-            spin = -720 * q if not ctx.mirrored else 720 * q
-            ctx.acc.draw_weapon_free(surf, pos, ctx.mirrored, spin)
+        def dagger(pos, q, vec):
+            # no spin: point the dagger along its flight path (art points up at angle 0)
+            heading = math.degrees(math.atan2(-vec.x, -vec.y))
+            angle = -heading if ctx.mirrored else heading     # draw_* expects the right-facing frame
+            if ctx.acc.has_projectile:
+                ctx.acc.draw_projectile(surf, pos, ctx.mirrored, angle)
+            else:
+                ctx.acc.draw_weapon_free(surf, pos, ctx.mirrored, angle)
 
         self._fly(p, self.LAUNCH, self.LAND, ctx, dagger)
         self._impact(surf, p, self.LAND, ctx, (220, 220, 220), span=0.1)

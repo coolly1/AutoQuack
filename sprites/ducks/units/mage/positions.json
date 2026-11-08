@@ -7,8 +7,12 @@
         "mount": [125, 140]
     },
     "hat": {
-        "scale": 0.75,
-        "anchor": [56, 75],
+        "scale": 1.0,
+        "art_faces_left": true,
+        "anchor": [55, 82],
         "mount": [112, 28]
+    },
+    "projectile": {
+        "scale": 3.0
     }
 }
