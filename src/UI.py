@@ -104,7 +104,51 @@ class ui():
             self.window_surface.blit(start_image, (350, 325))
 
             pygame.display.update()
-    
+
+    def instruction_menu(self):
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        inst_img_1_path = os.path.abspath(os.path.join(BASE_DIR, "../sprites/instructions_1.png"))
+        inst_img_2_path = os.path.abspath(os.path.join(BASE_DIR, "../sprites/instructions_2.png"))
+
+        inst_surface_1 = pygame.transform.scale(pygame.image.load(inst_img_1_path).convert_alpha(), (700, 430))
+        inst_surface_2 = pygame.transform.scale(pygame.image.load(inst_img_2_path).convert_alpha(), (700, 430))
+        images = [inst_surface_1, inst_surface_2]
+        current_index = 0
+
+        next_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((340, 515), (120, 50)),
+                                                   text='Next',
+                                                   manager=manager)
+
+        while self.is_running:
+            time_delta = self.clock.tick(60) / 1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == next_button:
+                        if current_index < len(images) - 1:
+                            current_index += 1
+                            if current_index == len(images) - 1:
+                                next_button.set_text("Got It!")
+                        else:
+                            return
+
+                manager.process_events(event)
+
+            manager.update(time_delta)
+
+            self.window_surface.blit(self.background, (0, 0))
+
+            img_rect = images[current_index].get_rect(center=(400, 250))
+            self.window_surface.blit(images[current_index], img_rect)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+
+
     def show_training(self):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -215,7 +259,7 @@ class ui():
         completion_bar = progress_bar(bbox=(505, 90, 189, 34), inner_color=(0,255,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
 
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-                
+
         cloud = os.path.join(BASE_DIR, "../sprites/cloud")
         cloud = os.path.abspath(cloud)
 
