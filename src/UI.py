@@ -69,9 +69,19 @@ class ui():
     
     def main_menu(self):
         manager = pygame_gui.UIManager((800, 600))
-        start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        start_menu = os.path.join(BASE_DIR, "../sprites/title_screen.png")
+        bg_image = pygame.image.load(start_menu).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+        start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 325), (100, 50)),
                                                      text='Start Game',
-                                                     manager=manager)
+                                                     manager=manager,
+                                                     object_id=ObjectID(class_id="@transparent_btn"))
+
+        start_button_path = os.path.join(BASE_DIR, "../sprites/start_button.png")
+        start_image = pygame.image.load(start_button_path).convert()
+        start_image = pygame.transform.scale(start_image, (100, 50))
+
         
         while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
@@ -81,14 +91,18 @@ class ui():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == start_button:
                         return;
-    
+
+                start_button.change_object_id(ObjectID(class_id="@transparent_btn"))
+
                 manager.process_events(event)
     
             manager.update(time_delta)
     
-            self.window_surface.blit(self.background, (0, 0))
+            self.window_surface.blit(bg_image, (0, 0))
+
             manager.draw_ui(self.window_surface)
-            
+            self.window_surface.blit(start_image, (350, 325))
+
             pygame.display.update()
     
     def show_training(self):
@@ -795,9 +809,14 @@ class ui():
                                                      text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
             duck_buttons.append(buttons)  
         
-        start = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+        start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
                                                      text='Start Game',
-                                                        manager=manager)
+                                                     manager=manager,
+                                                     object_id=ObjectID(class_id="@transparent_btn"))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        start_button_path = os.path.join(BASE_DIR, "../sprites/start_button.png")
+        start_image = pygame.image.load(start_button_path).convert()
+        start_image = pygame.transform.scale(start_image, (100, 50))
         
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 
@@ -813,7 +832,7 @@ class ui():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == start:
+                    if event.ui_element == start_button:
                         return self.player
                     for i in range(4):
                         if event.ui_element == duck_buttons[i][0]:
@@ -854,7 +873,9 @@ class ui():
                 self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 500))
                 self.select_stats[i].draw(self.player[i])
             manager.draw_ui(self.window_surface)
-            
+
+            self.window_surface.blit(start_image, (350, 275))
+
             pygame.display.update()
         
         
