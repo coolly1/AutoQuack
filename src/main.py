@@ -30,6 +30,7 @@ def main():
 
 
         battler_obj = battler(player, UI)
+        win = True
 
         for round_num in range(MAX_ROUNDS):
             # reset unit damage and charge
@@ -51,8 +52,10 @@ def main():
                         break
 
                 # w
-            battler_obj.start_battle(round_num)
-            
+            win = battler_obj.start_battle(round_num)
+            if(not win):
+                break
+        UI.show_end_screen(win);
         UI.player = []
 
 if __name__ == '__main__':
