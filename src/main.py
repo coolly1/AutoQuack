@@ -7,16 +7,24 @@ MAX_ROUNDS = 3
 def main():
     
     # pick ducks screens
-
-    #init_player
-    player = [load_unit("../data/cleric.csv"), 
+    UI = ui()
+    UI.main_menu()
+    
+    classes = [load_unit("../data/cleric.csv"), 
               load_unit("../data/rogue.csv"),
               load_unit("../data/mage.csv"), 
               load_unit("../data/knight.csv")]
+    
+    player = UI.select_units(classes)
+    
+    #init_player
+    # player = [load_unit("../data/cleric.csv"), 
+    #           load_unit("../data/rogue.csv"),
+    #           load_unit("../data/mage.csv"), 
+    #           load_unit("../data/knight.csv")]
 
     # show start screen
-    UI = ui(player)
-    UI.main_menu()
+    
 
 
     battler_obj = battler(player, UI)
