@@ -275,29 +275,39 @@ class ui():
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
 
+        # 1. Get valid color keys from your loaded images
+        available_colors = list(self.colorImages3.keys())
+        if not available_colors:
+            available_colors = [COLOR.YELLOW]  # Fallback safety
+
+        # Map arrow keys directly to indices that correspond to your color choices
+        available_keys = [pygame.K_LEFT, pygame.K_RIGHT, pygame.K_UP, pygame.K_DOWN]
+
         sprite_bar = SpriteGrid(
             bbox=(150, 220, 500, 200),
             inner_offset=12,
-            inner_color = (50, 50, 70),
-            outer_color= (255, 255, 255),
-            screen = self.window_surface,
-            sprite_size= 48,
+            inner_color=(50, 50, 70),
+            outer_color=(255, 255, 255),
+            screen=self.window_surface,
+            sprite_size=48,
             columns=5
         )
 
         elapsed_time = 0.0
-        MEMORIZE_TIME = 5.0 #Time to memorize the sequence
-        PLAY_TIME = 10.0 #Time to input sequence
-        total_time_limit = MEMORIZE_TIME + PLAY_TIME
+        memorize_time = 5.0  # Time to memorize the sequence
+        play_time = 10.0  # Time to input sequence
+        total_time_limit = memorize_time + play_time
 
         is_minigame_finished = False
         return_button = None
         score = 0.0
 
-
-        target_sequence = [0, 0, 0]
-
+        # 2. Use actual valid dictionary keys instead of integer 0
+        default_color = available_colors[0]
+        target_sequence = [default_color, default_color, default_color]
         current_step = 0
+
+        dummy_image_dict = self.colorImages3
 
         while self.is_running:
             time_second = self.clock.tick(60) / 1000.0
@@ -311,28 +321,31 @@ class ui():
 
                 self.window_surface.blit(self.background, (0, 0))
 
-                if total_time_limit >= elapsed_time > MEMORIZE_TIME and not is_minigame_finished:
+                if total_time_limit >= elapsed_time > memorize_time and not is_minigame_finished:
                     if event.type == pygame.KEYDOWN:
                         try:
-                            #Change keypress into index space
+                            # Change keypress into index space
                             pressed_index = available_keys.index(event.key)
-                            #Comparing index spaces
-                            if pressed_index == target_sequence[current_step]:
+
+                            # 3. Map arrow key index to a color from available_colors
+                            chosen_color = available_colors[pressed_index % len(available_colors)]
+
+                            # Comparing chosen color against the target sequence color
+                            if chosen_color == target_sequence[current_step]:
                                 current_step += 1
 
-                                #YOU DID IT
+                                # YOU DID IT
                                 if current_step == len(target_sequence):
                                     score = 100
                                     is_minigame_finished = True
                             else:
-                                #Fail
+                                # Fail
                                 score = 0.0
                                 is_minigame_finished = True
 
                         except ValueError:
-                            #Here to ignore keys that dont pertain to video game
+                            # Here to ignore keys that don't pertain to video game
                             pass
-
 
                 manager.process_events(event)
 
@@ -346,7 +359,12 @@ class ui():
                 is_minigame_finished = True
 
             elif (not is_minigame_finished):
-                pass
+                self.window_surface.blit(self.background, (0, 0))
+
+                if elapsed_time <= memorize_time:
+                    sprite_bar.draw(target_sequence, dummy_image_dict)
+                else:
+                    sprite_bar.draw(target_sequence[:current_step], dummy_image_dict)
 
             else:
                 if not return_button:
@@ -459,6 +477,107 @@ class ui():
         image = self.colorImages2 if flipped else self.flippedColorImages2
         self.window_surface.blit(image[unit.color], (x, y))
         self._draw_accessories(unit, x, y, mirrored=flipped, scale=TRAINING_DUCK_SCALE)
+
+
+    def minigame_4(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        self.background.fill(pygame.Color('#1e3d59'))
+
+        #Fishing Bar dims
+        bar_x = 350
+        bar_y = 150
+        bar_w = 40
+        bar_h = 350
+
+        #red target zone (up and down thingy)
+        target_height = 80
+        target_y = float(bar_y + 100)
+        target_speed = 120.0
+        target_direction = 1 #1 is down and -1 is up
+
+        # Player catch bar (controlled by keys)
+        player_bar_height = 60
+        player_bar_y = float(bar_y + 200)
+        player_speed = 250.0  # Pixels per second
+
+        duck_x = 100
+        duck_y = 450
+        score = 0.0
+        elapsed_time = 0.0
+        timeout = 20.0
+        is_minigame_finished = False
+        return_button = None
+
+        while self.is_running:
+            time_second = self.clock.tick(60) / 1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+                manager.process_events(event)
+
+            manager.update(time_second)
+
+            if elapsed_time < timeout:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_UP] or keys[pygame.K_w]:
+                    player_bar_y -= player_speed * time_second
+                if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                    player_bar_y += player_speed * time_second
+
+                #clamping player bar inside of the fishing bar
+                player_bar_y = max(bar_y, min(bar_y + bar_h - player_bar_height, player_bar_y))
+
+                direction_change_timer += time_second
+
+                if direction_change_timer >= target_next_change_time:
+                    direction_change_timer = 0.0
+                    target_next_change_time = random.random(0.5, 1.5) #Theoretically random times for the bar to change direction
+
+                    target_speed = random.random(-100.0, 100.0)
+
+                    target_y += target_speed * time_second
+
+                #make sure red target zone doesn't no clip out of frame
+                if target_y <= bar_y:
+                    target_y = bar_y
+                    target_direction = 1  # Switch to moving down
+                elif target_y >= bar_y + bar_h - target_height:
+                    target_y = bar_y + bar_h - target_height
+                    target_direction = -1  # Switch to moving up
+
+                duck_rec = pygame.Rect(duck_x, duck_y, 96, 96)
+
+                # Draw panel
+                border_rect = pygame.Rect(343, 76, 93, 93)
+                pygame.draw.rect(self.window_surface, (217, 217, 217), border_rect)
+
+                # calc text
+                font = pygame.font.Font(None, 50)
+                text_surface = font.render(f"{score:.2f}", True, (0, 0, 0))
+
+                # get the text rectangle
+                text_rect = text_surface.get_rect()
+                text_rect.center = (343 + 93 / 2, 76 + 93 / 2)
+
+                # draw the text
+                self.window_surface.blit(text_surface, text_rect)
+
+                self.draw_duck2(self.player[unit], duck_x, duck_y)
+
+            elif (not is_minigame_finished):
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+            else:
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+
+
 
     def _draw_accessories(self, unit:UNIT, x:int, y:int, mirrored:bool, pose: Pose = None, scale: float = DUCK_SCALE):
         acc = get_accessories(unit.path)
