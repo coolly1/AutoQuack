@@ -14,8 +14,8 @@ def main():
     # pick ducks screens
 
     #init_player
-    player = [load_unit("AutoQuack/data/mega_peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
-              load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
+    player = [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
+              load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
 
     battler_obj = battler(player, UI)
 
@@ -27,7 +27,7 @@ def main():
         while(training_state != 0):
 
 
-            training_state, unit = UI.show_training()
+            training_state, unit = UI.show_training(player)
             match training_state:
                 case 1:
                     UI.minigame_1(unit)

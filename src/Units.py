@@ -1,9 +1,15 @@
 from enum import Enum
-
+import os
 
 def load_unit(file):
     data = []
-    with open(file, "r") as file:
+    
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    full_path = os.path.join(BASE_DIR, file)
+    full_path = os.path.abspath(full_path)
+    
+    
+    with open(full_path, "r") as file:
         content = file.readline()
         content = file.read()
 

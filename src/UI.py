@@ -12,6 +12,7 @@ class ui():
     }
     
     colorImages = {}
+    flippedColorImages = {}
     
     def __init__(self):
         pygame.init()
@@ -30,7 +31,7 @@ class ui():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
             self.colorImages[color] = pygame.image.load(full_path).convert_alpha()
-        
+            self.flippedColorImages[color] = pygame.transform.flip(self.colorImages[color], True, False)
         
     
     def main_menu(self):
@@ -57,7 +58,7 @@ class ui():
             
             pygame.display.update()
     
-    def show_training(self):
+    def show_training(self, player):
         manager = pygame_gui.UIManager((800, 600))
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
                                                      text='Train Health',
@@ -115,7 +116,7 @@ class ui():
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
-            self.draw_duck(UNIT(0, 0, 0, 0, 0, 0, 0, 0, "", TARGET.SELF, SPECIAL.NONE), 50, 400)
+            self.draw_duck(player[unit], 50, 400, 1/3, True)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -140,8 +141,11 @@ class ui():
             
             pygame.display.update()
     
-    def draw_duck(self, unit:UNIT, x:int, y:int):
-        self.window_surface.blit(self.colorImages[unit.color], (x, y))
+    def draw_duck(self, unit:UNIT, x:int, y:int, scale:float, flipped:bool = False):
+        if flipped:
+            self.window_surface.blit(self.colorImages[unit.color], (x, y), pygame.Rect(0, 0, self.colorImages[unit.color].get_width() * scale, self.colorImages[unit.color].get_height() * scale))
+        else:
+            self.window_surface.blit(self.flippedColorImages[unit.color], (x, y), pygame.Rect(0, 0, self.flippedColorImages[unit.color].get_width() * scale, self.flippedColorImages[unit.color].get_height() * scale))
         pass
     
     def show_battle(self, active_unit, affected_units, is_special):
