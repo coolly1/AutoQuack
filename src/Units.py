@@ -8,7 +8,7 @@ def load_unit(file):
         data.append(row)
 
     unit = UNIT(base_health=int(data[0]), base_attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), base_special_attack=int(data[3]), special_attack_growth=int(data[4]),
-                base_speed = TARGET(data[5]), max_charge= SPECIAL(data[6]), path = str(data[7]), normal_target = TARGET(data[8]),
+                base_speed = int(data[5]), max_charge= int(data[6]), path = str(data[7]), normal_target = TARGET(data[8]),
                 special_action=SPECIAL(data[9]))
     return unit
 
