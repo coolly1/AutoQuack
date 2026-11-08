@@ -48,7 +48,7 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
-        self.stats = stat_panel(bbox=(450, 50, 300, 200), screen=self.window_surface)
+        self.stats = stat_panel(bbox=(550, 50, 200, 200), screen=self.window_surface)
         self.select_stats = []
         for i in range(4):
             self.select_stats.append(stat_panel(bbox=(15 + 200 * i, 20, 170, 200), screen=self.window_surface))
@@ -155,19 +155,34 @@ class ui():
         start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
         bg_image = pygame.image.load(start_menu).convert()
         bg_image = pygame.transform.scale(bg_image, (800, 600))
-        train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
+        health_image = os.path.join(BASE_DIR, "../sprites/train_health_button.png")
+        health_image = pygame.image.load(health_image).convert()
+        health_image = pygame.transform.scale(health_image, (200, 75))
+        speed = os.path.join(BASE_DIR, "../sprites/train_speed_button.png")
+        speed_image = pygame.image.load(speed).convert()
+        speed_image = pygame.transform.scale(speed_image, (200, 75))
+        ability = os.path.join(BASE_DIR, "../sprites/train_ability_button.png")
+        ability_image = pygame.image.load(ability).convert()
+        ability_image = pygame.transform.scale(ability_image, (200, 75))
+        strength = os.path.join(BASE_DIR, "../sprites/train_strength_button.png")
+        strength_image = pygame.image.load(strength).convert()
+        strength_image = pygame.transform.scale(strength_image, (200, 75))
+        fight = os.path.join(BASE_DIR, "../sprites/fight_button.png")
+        fight_image = pygame.image.load(fight).convert()
+        fight_image = pygame.transform.scale(fight_image, (150, 50))
+        train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (200, 75)),
                                                      text='Train Health',
                                                      manager=manager)
         
-        train_button_2 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 50), (150, 75)),
+        train_button_2 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((300, 50), (200, 75)),
                                                      text='Train Attack',
                                                      manager=manager)
         
-        train_button_3 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 150), (150, 75)),
+        train_button_3 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 150), (200, 75)),
                                                      text='Train Speed',
                                                      manager=manager)
         
-        train_button_4 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((250, 150), (150, 75)),
+        train_button_4 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((300, 150), (200, 75)),
                                                      text='Train Ability',
                                                      manager=manager)
         
@@ -248,7 +263,12 @@ class ui():
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
             if stat_unit is not None:
                 self.stats.draw(stat_unit)
-            manager.draw_ui(self.window_surface)
+            
+            self.window_surface.blit(health_image, (50, 50))
+            self.window_surface.blit(speed_image, (50, 150))
+            self.window_surface.blit(strength_image, (300, 50))
+            self.window_surface.blit(ability_image, (300, 150))
+            self.window_surface.blit(fight_image, (600, 275))
             
             pygame.display.update()
 
@@ -259,6 +279,10 @@ class ui():
         completion_bar = progress_bar(bbox=(505, 90, 189, 34), inner_color=(0,255,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
 
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
 
         cloud = os.path.join(BASE_DIR, "../sprites/cloud")
         cloud = os.path.abspath(cloud)
@@ -332,6 +356,8 @@ class ui():
                 cloud_3.draw(score+1)
                 cloud_4.draw(score+1)
 
+                manager.draw_ui(self.window_surface)
+
                 if(is_up_last_pressed):
                     image_rect = up_disable_image.get_rect()
                     image_rect.topleft = (500, 245)
@@ -374,14 +400,19 @@ class ui():
                 new = self.player[unit].base_attack_dmg
             else:
                 self.rewards.draw(score, old, new)
+                self.window_surface.blit(return_image, (350, 350))
 
-            manager.draw_ui(self.window_surface)
             pygame.display.update()
         return score
     def minigame_2(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
 
         sprites = os.path.join(BASE_DIR, "../sprites/")
         time_bar = progress_bar(bbox=(105, 90, 189, 34), inner_color=(255,0,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
@@ -497,6 +528,8 @@ class ui():
                 new = self.player[unit].special_attack
             else:
                 self.rewards.draw(score, old, new)
+                self.window_surface.blit(return_image, (350, 350))
+
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -507,6 +540,11 @@ class ui():
         manager = pygame_gui.UIManager((800, 600))
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         hill_path = os.path.join(BASE_DIR, "../sprites/cliff_side_background.png")
+
+
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
 
         # self.background.fill(pygame.Color('#87CEEB'))
         bg_image = pygame.image.load(hill_path).convert()
@@ -600,6 +638,8 @@ class ui():
                 new = self.player[unit].base_speed
             else:
                 self.rewards.draw(score, old, new)
+                self.window_surface.blit(return_image, (350, 350))
+
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -608,6 +648,12 @@ class ui():
     def minigame_4(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#1e3d59'))
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
 
         #Fishing Bar dims
         bar_x = 450
@@ -722,6 +768,7 @@ class ui():
                 new = self.player[unit].max_health
             else:
                 self.rewards.draw(score, old, new)
+                self.window_surface.blit(return_image, (350, 350))
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -755,7 +802,7 @@ class ui():
     @staticmethod
     def _slot_pos(idx: int) -> Vector2:
         """Top-left of the duck in slot idx (0-3 player, 4-7 enemy)."""
-        return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
+        return Vector2(50 + 75 * idx, 450) if idx < 4 else Vector2(450 + 75 * (idx - 4), 450)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -845,7 +892,7 @@ class ui():
     def select_units(self, classes):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        start_menu = os.path.join(BASE_DIR, "../sprites/party_select.png")
         bg_image = pygame.image.load(start_menu).convert()
         bg_image = pygame.transform.scale(bg_image, (800, 600))
         self.player = []
@@ -857,14 +904,14 @@ class ui():
         
         for i in range(4):
             buttons = []
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 470), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 470), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 500), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 500), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 520), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 520), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 550), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 550), (40, 25)),
+                                                     text = '', manager=manager))
             duck_buttons.append(buttons)  
         
         start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
@@ -883,7 +930,7 @@ class ui():
         
         arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.5)
         arrow_flipped = pygame.transform.flip(arrow, True, False)
-        
+
         while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
@@ -924,17 +971,62 @@ class ui():
 
             self.window_surface.blit(bg_image, (0, 0))
             for i in range(4):
-                self.draw_duck2(self.player[i], 50 + 200 * i, 350)
-                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 470))
-                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 470))
-                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 500))
-                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 500))
+                self.draw_duck2(self.player[i], 50 + 200 * i, 400)
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 520))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 520))
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 550))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 550))
                 self.select_stats[i].draw(self.player[i])
-            manager.draw_ui(self.window_surface)
+            # manager.draw_ui(self.window_surface)
 
             self.window_surface.blit(start_image, (350, 275))
 
             pygame.display.update()
+    
+    def show_end_screen(self, win):
+        manager = pygame_gui.UIManager((800, 600))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        background = os.path.join(BASE_DIR, "../sprites/battle.png")
+        background = os.path.abspath(background)
+        bg_image = pygame.image.load(background).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+        
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_button_path = os.path.abspath(return_button_path)
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
+        
+        banner_path = os.path.join(BASE_DIR, "../sprites/you_win_banner.png" if win else "../sprites/you_lose_banner.png")
+        banner_path = os.path.abspath(banner_path)
+        banner_image = pygame.image.load(banner_path).convert()
+        banner_image = pygame.transform.scale_by(banner_image, 0.333)
+
+        return_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+                                                     text='Return!',
+                                                     manager=manager)
+
+        while self.is_running:
+            time_delta = self.clock.tick(60)/1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == return_button:
+                        return
+                manager.process_events(event)
+
+            manager.update(time_delta)
+
+            self.window_surface.blit(bg_image, (0, 0))
+            
+            self.window_surface.blit(return_image, (350, 275))
+            self.window_surface.blit(banner_image, (400 - banner_image.get_width() // 2, 100))
+            
+            for i in range(4):
+                self.draw_duck2(self.player[i], 50 + 200 * i, 400, flipped=i >= 2)
+                        
+            pygame.display.update()
+        
         
         
         
@@ -1035,6 +1127,7 @@ class rewards_panel():
 
         # draw the text
         self.screen.blit(text_surface, text_rect)
+
 
     def draw_button(self, manager):
         return pygame_gui.elements.UIButton(relative_rect=pygame.Rect((self.bbox[0] + self.bbox[2]/2 - 50,
