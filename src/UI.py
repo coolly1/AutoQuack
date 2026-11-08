@@ -48,7 +48,7 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
-        self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
+        self.stats = stat_panel(bbox=(450, 50, 300, 200), screen=self.window_surface)
         self.select_stats = []
         for i in range(4):
             self.select_stats.append(stat_panel(bbox=(15 + 200 * i, 20, 170, 200), screen=self.window_surface))
