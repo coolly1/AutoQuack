@@ -38,7 +38,7 @@ class ui():
     def __init__(self):
         pygame.init()
         
-        pygame.display.set_caption('Quick Start')
+        pygame.display.set_caption('AutoQuack')
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         
         self.THEME_PATH = os.path.join(BASE_DIR, "../data/UI_Theme.json")
