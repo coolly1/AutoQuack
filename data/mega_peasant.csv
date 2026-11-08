@@ -1,2 +1,2 @@
-#base_hp, base_atk, atk_growth, base_spk, spk_growth, base_speed, max_charge, path, normal_target, special_action
-100,1,1,1,1,1,1,AutoQuack/sprites/ducks/units/knight,1,Abyssal Splash
+#base_hp, hp_growth, base_atk, atk_growth, base_spk, spk_growth, base_speed, spd_growth, max_charge, path, normal_target, special_action
+100,10,1,1,1,1,1,1,1,AutoQuack/sprites/ducks/units/mega_peasant,1,Mega Peasant

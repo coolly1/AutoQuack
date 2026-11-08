@@ -16,9 +16,9 @@ def load_unit(file):
 
         data = content.strip().split(",")
 
-    unit = UNIT(base_health=int(data[0]), base_attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), base_special_attack=int(data[3]), special_attack_growth=int(data[4]),
-                base_speed = int(data[5]), max_charge= int(data[6]), path = str(data[7]), normal_target = TARGET(int(data[8])),
-                special_action=SPECIAL(data[9]))
+    unit = UNIT(base_health=int(data[0]), health_growth=int(data[1]), base_attack_dmg=int(data[2]), attack_dmg_growth=int(data[3]), base_special_attack=int(data[4]), special_attack_growth=int(data[5]),
+                base_speed = int(data[6]), speed_growth=int(data[7]), max_charge= int(data[8]), path = str(data[9]), normal_target = TARGET(int(data[10])),
+                special_action=SPECIAL(data[11]))
     return unit
 
 class TARGET(Enum):
@@ -132,6 +132,7 @@ class UNIT:
 
             case TRAINABLE_STAT.SPD:
                 self.base_speed += self.speed_growth * score    
+                
             case TRAINABLE_STAT.SPK:
                 self.base_special_attack += self.special_attack_growth * score
             case _:

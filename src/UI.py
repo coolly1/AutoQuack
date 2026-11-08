@@ -52,7 +52,8 @@ class ui():
         self.background.fill(pygame.Color('#000000'))
         self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
-        self.is_running = True
+        self.is_running = 
+        self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
 
         for color, path in self.colorPaths.items():
             full_path = os.path.join(BASE_DIR, path)
@@ -480,7 +481,7 @@ class ui():
                 # draw the text
                 self.window_surface.blit(text_surface, text_rect)
 
-                self.draw_duck2(self.player[unit], duck_x, duck_y)
+                self.draw_duck2(self.player[unit], duck_x, duck_y, flipped=facing_left)
 
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
@@ -491,7 +492,12 @@ class ui():
             manager.draw_ui(self.window_surface)
             pygame.display.update()
 
-
+    def draw_duck2(self, unit:UNIT, x:int, y:int, flipped:bool = False):
+        """Training-scene duck (half size) with its hat and weapon at rest.
+        Faces right by default; flipped=True turns it to face left."""
+        image = self.colorImages2 if flipped else self.flippedColorImages2
+        self.window_surface.blit(image[unit.color], (x, y))
+        self._draw_accessories(unit, x, y, mirrored=flipped, scale=TRAINING_DUCK_SCALE)
 
     def _draw_accessories(self, unit:UNIT, x:int, y:int, mirrored:bool, pose: Pose = None, scale: float = DUCK_SCALE):
         acc = get_accessories(unit.path)

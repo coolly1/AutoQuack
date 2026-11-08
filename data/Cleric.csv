@@ -1,2 +1,2 @@
-#base_hp, base_atk, atk_growth, base_spk, spk_growth, base_speed, max_charge, path, normal_target, special_action
-75,5,2,3,2,70,4,AutoQuack/sprites/ducks/units/cleric,3,Soothing Quack
+#base_hp, hp_growth, base_atk, atk_growth, base_spk, spk_growth, base_speed, spd_growth, max_charge, path, normal_target, special_action
+75,3,5,2,3,2,70,5,4,AutoQuack/sprites/ducks/units/cleric,3,Soothing Quack
