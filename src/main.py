@@ -9,8 +9,8 @@ def main():
     # pick ducks screens
 
     #init_player
-    player = [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
-                  load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
+    player = [load_unit("../data/knight.csv"), load_unit("../data/peasant.csv"),
+                  load_unit("../data/mage.csv"), load_unit("../data/mega_peasant.csv")]
 
     # show start screen
     UI = ui(player)
