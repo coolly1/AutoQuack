@@ -21,7 +21,8 @@ class ui():
         COLOR.BROWN: "..\\sprites\\ducks\\skins\\brown_duck.png"
     }
     
-    flippedColorImages2 = {}
+    colorImages2 = {}            # half size, faces left (the original art direction)
+    flippedColorImages2 = {}     # half size, faces right
     colorImages3 = {}
     flippedColorImages3 = {}
     
@@ -45,11 +46,13 @@ class ui():
         self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
+        self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
 
         for color, path in self.colorPaths.items():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
             self.colorImages3[color] = pygame.image.load(full_path).convert_alpha()
+            self.colorImages2[color] = pygame.transform.scale(self.colorImages3[color], (self.colorImages3[color].get_width() / 2, self.colorImages3[color].get_height() / 2))
             self.flippedColorImages2[color] = pygame.transform.flip(self.colorImages3[color], True, False)
             self.flippedColorImages2[color] = pygame.transform.scale(self.flippedColorImages2[color], (self.flippedColorImages2[color].get_width() / 2, self.flippedColorImages2[color].get_height() / 2))
             self.colorImages3[color] = pygame.transform.scale(self.colorImages3[color], (self.colorImages3[color].get_width() / 3, self.colorImages3[color].get_height() / 3))
@@ -369,6 +372,7 @@ class ui():
 
         duck_x = 100
         duck_y = 450
+        facing_left = False
         score = 0.0
         elapsed_time = 0.0
         is_minigame_finished = False
@@ -392,7 +396,7 @@ class ui():
 
             for boulder in boulder_array:
                 boulder_rec = pygame.Rect(boulder.x, boulder.y, 96, 96)
-                is_touched = is_touched or boulder_rec.colliderect(duck_rec)
+                is_touched = is_touched or math.sqrt((duck_rec.centerx - boulder_rec.centerx) ** 2 + (duck_rec.centery - boulder_rec.centery) ** 2) < 96
                 if(boulder.y > 600):
                     score += 0.3
                     boulder_array.pop(0)
@@ -400,11 +404,18 @@ class ui():
             if(not is_touched):
                 keys = pygame.key.get_pressed()
 
-                if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+                go_left = keys[pygame.K_a] or keys[pygame.K_LEFT]
+                go_right = keys[pygame.K_d] or keys[pygame.K_RIGHT]
+
+                if go_left:
                     duck_x = max(duck_x-5, 0)
 
-                if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+                if go_right:
                     duck_x = min(duck_x+5, 800-100)
+
+                # face the way the duck is moving (keep the last direction when standing still or pressing both)
+                if go_left != go_right:
+                    facing_left = go_left
 
                 self.window_surface.blit(bg_image, (0, 0))
 
@@ -430,7 +441,7 @@ class ui():
                 # draw the text
                 self.window_surface.blit(text_surface, text_rect)
 
-                self.draw_duck2(self.player[unit], duck_x, duck_y)
+                self.draw_duck2(self.player[unit], duck_x, duck_y, flipped=facing_left)
 
             elif(not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
@@ -442,10 +453,12 @@ class ui():
             pygame.display.update()
         return score
 
-    def draw_duck2(self, unit:UNIT, x:int, y:int):
-        """Training-scene duck (half size, faces right) with its hat and weapon at rest."""
-        self.window_surface.blit(self.flippedColorImages2[unit.color], (x, y))
-        self._draw_accessories(unit, x, y, mirrored=False, scale=TRAINING_DUCK_SCALE)
+    def draw_duck2(self, unit:UNIT, x:int, y:int, flipped:bool = False):
+        """Training-scene duck (half size) with its hat and weapon at rest.
+        Faces right by default; flipped=True turns it to face left."""
+        image = self.colorImages2 if flipped else self.flippedColorImages2
+        self.window_surface.blit(image[unit.color], (x, y))
+        self._draw_accessories(unit, x, y, mirrored=flipped, scale=TRAINING_DUCK_SCALE)
 
     def _draw_accessories(self, unit:UNIT, x:int, y:int, mirrored:bool, pose: Pose = None, scale: float = DUCK_SCALE):
         acc = get_accessories(unit.path)
@@ -476,9 +489,15 @@ class ui():
         facing = 1 if active_unit < 4 else -1
         active = units[active_unit]
 
+        # The battler applies damage BEFORE calling us, so a duck killed by this hit is already dead here.
+        # Keep it on screen for this animation: it died now if it was alive when the previous animation ended.
+        just_died = {i for i, u in enumerate(units)
+                     if u.is_dead() and any(u is a for a in self._alive_units)}
+
         acc = get_accessories(active.path)
         anim = special_animation_for(acc) if is_special else animation_for(acc)
         if anim is None:
+            self._alive_units = [u for u in units if not u.is_dead()]
             return  # TODO: specials without their own animation yet are skipped
 
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
@@ -513,12 +532,16 @@ class ui():
             if ctx is not None:
                 anim.draw_under(self.window_surface, progress, ctx)
             # draw the attacker last so it (and its lunge) is on top
-            for i in [i for i in range(8) if i != active_unit] + [active_unit]:
+            others = [i for i in range(8) if i != active_unit]
+            for i in ([active_unit] + others) if pose.behind else (others + [active_unit]):
                 pos = self._slot_pos(i)
                 if i == active_unit:
-                    self.draw_duck(units[i], pos.x + pose.dx * facing, pos.y, i < 4, pose)
+                    if pose.visible:
+                        face = -facing if pose.flip else facing     # flip = turned around (e.g. rogue behind its target)
+                        self.draw_duck(units[i], pos.x + pose.offset.x + pose.dx * face, pos.y + pose.offset.y,
+                                       face > 0, pose)
                 else:
-                    if not units[i].is_dead():
+                    if not units[i].is_dead() or i in just_died:
                         self.draw_duck(units[i], pos.x, pos.y, i < 4)
             if ctx is not None:
                 anim.draw_effects(self.window_surface, progress, ctx)
@@ -526,6 +549,8 @@ class ui():
 
             pygame.display.update()
             anim_finished = progress >= 1.0
+
+        self._alive_units = [u for u in units if not u.is_dead()]
 
 
 @dataclass

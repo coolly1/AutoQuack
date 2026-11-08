@@ -26,6 +26,7 @@ positions.json layout:
 import json
 import math
 import os
+import random
 from dataclasses import dataclass, field
 
 import pygame
@@ -35,6 +36,9 @@ DUCK_SRC_W = 193          # width of the skin png before UI scales it down
 DUCK_SCALE = 1 / 3        # battle scene: must match the scale UI applies to the skin
 TRAINING_DUCK_SCALE = 1 / 2   # training scene (draw_duck2)
 DUCK_DISPLAY_SIZE = Vector2(64, 65)
+SCREEN_W = 800
+# x-range of the team a duck facing +1 (player side) / -1 (enemy side) is attacking
+TEAM_X_SPAN = {1: (450, 450 + 75 * 3 + 64), -1: (50, 50 + 75 * 3 + 64)}
 
 SPRITES_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sprites"))
 
@@ -226,6 +230,11 @@ class Pose:
     dx: float = 0.0                # forward lunge in px (forward = toward the enemy)
     angle: float = 0.0             # weapon angle relative to rest_angle
     weapon_visible: bool = True
+    # teleport support (rogue special): where the whole duck is drawn, which way it faces, and whether it shows
+    offset: Vector2 = field(default_factory=Vector2)   # screen offset from the duck's slot
+    flip: bool = False                                  # face the opposite way from its team
+    visible: bool = True
+    behind: bool = False                                # draw this duck BEFORE the others (so they cover it)
 
 
 @dataclass
@@ -235,6 +244,9 @@ class AttackContext:
     duck_pos: Vector2              # active duck's resting top-left
     facing: int                    # +1 = faces right (player), -1 = faces left (enemy)
     targets: list                  # screen points (duck centers) of affected ducks
+
+    def __post_init__(self):
+        self.anim.ctx = self       # lets an animation look up where its targets are
 
     @property
     def mirrored(self):
@@ -249,6 +261,7 @@ class AttackContext:
 class Animation:
     duration = 0.7
     targets_include_self = False   # True for team-wide effects (heals) that also affect the caster
+    ctx = None                     # set by AttackContext; gives pose() access to targets / positions
 
     def pose(self, p: float) -> Pose:
         return Pose()
@@ -261,12 +274,14 @@ class Animation:
 
     # shared projectile/impact helpers
     @staticmethod
-    def _fly(p, launch, land, ctx, draw):
+    def _fly(p, launch, land, ctx, draw, start_for=None):
+        """Move a projectile per target. start_for(j, target) -> spawn point; default is the weapon tip."""
         if not (launch <= p < land):
             return
         q = (p - launch) / (land - launch)
-        start = ctx.tip_at(launch)
-        for tgt in ctx.targets:
+        tip = ctx.tip_at(launch) if start_for is None else None
+        for j, tgt in enumerate(ctx.targets):
+            start = tip if tip is not None else start_for(j, tgt)
             draw(start.lerp(tgt, q), q, tgt - start)
 
     @staticmethod
@@ -321,11 +336,19 @@ class MageAnim(Animation):
 
 class ClericAnim(Animation):
     """Small cross swing, then a golden bolt."""
-    duration = 1.3                 # bolt flight takes (LAND - LAUNCH) * duration = 0.72 s (was 0.32 s)
-    LAUNCH, LAND = 0.28, 0.83
+    duration = 1.0                 # bolt flight takes (LAND - LAUNCH) * duration = 0.40 s (was 0.72 s)
+    LAUNCH, LAND = 0.36, 0.76
+    SPAWN_Y = 10                   # bolts fall from the very top of the screen
+
+    def __init__(self):
+        self._spawn_u = [random.random() for _ in range(8)]   # one random spot per target, fixed for this attack
+
+    def _spawn_point(self, ctx, j):
+        lo, hi = TEAM_X_SPAN[ctx.facing]                       # above the OTHER team
+        return Vector2(lo + self._spawn_u[j % 8] * (hi - lo), self.SPAWN_Y)
 
     def pose(self, p):
-        return Pose(angle=keyframes([(0, 0), (0.18, 20), (0.28, -20), (0.5, -20), (1, 0)], p))
+        return Pose(angle=keyframes([(0, 0), (0.23, 20), (0.36, -20), (0.65, -20), (1, 0)], p))
 
     def draw_effects(self, surf, p, ctx):
         r = 6
@@ -337,7 +360,7 @@ class ClericAnim(Animation):
             pygame.draw.circle(surf, (230, 180, 40), pos, r + 3)
             pygame.draw.circle(surf, (255, 245, 170), pos, r)
 
-        self._fly(p, self.LAUNCH, self.LAND, ctx, bolt)
+        self._fly(p, self.LAUNCH, self.LAND, ctx, bolt, start_for=lambda j, tgt: self._spawn_point(ctx, j))
         self._impact(surf, p, self.LAND, ctx, (255, 240, 150))
 
 
@@ -447,8 +470,54 @@ ANIMATIONS = {
 }
 
 
+class RogueSpecialAnim(Animation):
+    """The Final Quack: vanish in smoke, reappear just BEHIND the back enemy (facing it), stab, then
+    smoke back home. Needs smoke.png in the rogue folder."""
+    duration = 2.4
+
+    SMOKE_FILE, SMOKE_SCALE = "smoke.png", 0.3        # ~136 px wide, covers a duck
+    BEHIND_PX = 60                                      # how far past the target the rogue stands
+    GONE_FROM, BACK_AT = 0.105, 0.80                    # the rogue is away from home in [GONE_FROM, BACK_AT)
+    STAB_AT = 0.53                                      # the moment the dagger lands
+    # smoke puffs: (fade in start, fully opaque, start fading out, gone)
+    OUT_SMOKE = (0.00, 0.07, 0.14, 0.24)                # leaving: covers the swap at GONE_FROM
+    IN_SMOKE = (0.70, 0.77, 0.84, 0.95)                 # returning: covers the swap at BACK_AT
+
+    def _dest_offset(self):
+        ctx = self.ctx
+        if ctx is None or not ctx.targets:
+            return Vector2()
+        top_left = ctx.targets[0] - DUCK_DISPLAY_SIZE / 2
+        x = max(0, min(SCREEN_W - DUCK_DISPLAY_SIZE.x, top_left.x + ctx.facing * self.BEHIND_PX))
+        return Vector2(x, top_left.y) - ctx.duck_pos
+
+    def pose(self, p):
+        # dagger stab: pull back and raise, then thrust forward (angle is relative to the rest angle)
+        dx = keyframes([(0, 0), (0.36, 0), (0.46, -8), (0.53, 14), (0.62, 14), (0.72, 0)], p)
+        angle = keyframes([(0, 0), (0.36, 0), (0.46, 55), (0.53, -30), (0.62, -30), (0.72, 0)], p)
+        if self.GONE_FROM <= p < self.BACK_AT:
+            return Pose(dx, angle, offset=self._dest_offset(), flip=True, behind=True)  # behind the enemy, facing it
+        return Pose()
+
+    def _puff(self, surf, p, ctx, window, center):
+        a = _trapezoid(p, *window)
+        if a <= 0:
+            return
+        t = (p - window[0]) / (window[3] - window[0])
+        _blit_faded(surf, ctx.acc.effect_image(self.SMOKE_FILE, self.SMOKE_SCALE), center, a, zoom=0.7 + 0.6 * t)
+
+    def draw_effects(self, surf, p, ctx):
+        home = ctx.duck_pos + DUCK_DISPLAY_SIZE / 2
+        away = home + self._dest_offset()
+        for window in (self.OUT_SMOKE, self.IN_SMOKE):
+            self._puff(surf, p, ctx, window, home)
+            self._puff(surf, p, ctx, window, away)
+        self._impact(surf, p, self.STAB_AT, ctx, (230, 230, 230), span=0.08)
+
+
 SPECIAL_ANIMATIONS = {
     "cleric": ClericSpecialAnim,
+    "rogue": RogueSpecialAnim,
 }
 
 
