@@ -34,8 +34,8 @@ class battler():
                  enemy[3].train(TRAINABLE_STAT.HP, average_score)
                  return enemy
             case 1:
-                enemy = [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
-                         load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
+                enemy = [load_unit("../data/knight.csv"), load_unit("../data/cleric.csv"),
+                         load_unit("../data/cleric.csv"), load_unit("../data/knight.csv")]
                 return enemy
             case 2:
                 enemy = [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
