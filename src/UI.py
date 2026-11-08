@@ -714,6 +714,11 @@ class ui():
         return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        bg_image = pygame.image.load(start_menu).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+
         units = list(self.player) + list(enemy_team)
         facing = 1 if active_unit < 4 else -1
         active = units[active_unit]
@@ -756,7 +761,7 @@ class ui():
 
             manager.update(time_delta)
 
-            self.window_surface.blit(self.background, (0, 0))
+            self.window_surface.blit(bg_image, (0, 0))
             pose = anim.pose(progress)
             if ctx is not None:
                 anim.draw_under(self.window_surface, progress, ctx)
