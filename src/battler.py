@@ -46,7 +46,7 @@ class battler():
         # add player, and enemy
         for unit_idx in range(len(self.units)):
             self.schedule_unit(unit_idx, 0.0)
-
+            self.units[unit_idx].reset_for_battle()
         for turn_order in range(MAX_TURNS):
             (prev_priority, turn_id, active_unit_idx) = heapq.heappop(self.turn_order_pq)
 

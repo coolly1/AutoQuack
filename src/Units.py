@@ -1,4 +1,16 @@
 from enum import Enum
+import csv
+
+def load_unit(file):
+    reader = csv.reader(file)
+    data = []
+    for row in reader:
+        data.append(row)
+
+    unit = UNIT(max_health=int(data[0]), attack_dmg=int(data[1]), special_attack=int(data[2]), speed=int(data[3]), max_charge=int(data[4]),
+                normal_target= TARGET(data[5]), special_action= SPECIAL(data[6]), path = data[7], base_speed = int(data[8]),
+                base_ability_power=int(data[9]), attack_dmg_growth=int(data[10]), special_attack_growth=int(data[11]))
+    return unit
 
 
 class TARGET(Enum):
