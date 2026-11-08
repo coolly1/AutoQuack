@@ -2,12 +2,28 @@
   "@transparent_btn": {
     "colours": {
       "normal_bg": "#00000000",
-      "hovered_bg": "#FFFFFF15",
+      "hovered_bg": "#00000000",
       "disabled_bg": "#00000000",
       "selected_bg": "#00000000",
       "active_bg": "#00000000",
       "normal_border": "#00000000",
       "hovered_border": "#00000000"
+    }
+  },
+  "@transparent_border_btn": {
+    "colours": {
+      "normal_bg": "#00000000",
+      "hovered_bg": "#00000000",
+      "disabled_bg": "#00000000",
+      "selected_bg": "#00000000",
+      "active_bg": "#00000000",
+      "normal_border": "#FF0000FF",
+      "hovered_border": "#FF0000FF",
+      "selected_border": "#FF0000FF",
+      "active_border": "#FF0000FF"
+    },
+    "misc": {
+      "border_width": "3"
     }
   }
 }

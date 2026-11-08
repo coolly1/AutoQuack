@@ -114,7 +114,17 @@ class Accessories:
         self.proj_src = self._load(os.path.join(folder, "projectile.png"))
         self.rest_angle = float(self.config["weapon"]["rest_angle"])
         self.name = os.path.basename(os.path.normpath(folder)).lower()
+        self.folder = folder
         self._cache = {}
+        self._effects = {}
+
+    def effect_image(self, filename: str, scale: float = 1.0):
+        """Extra sprite from the unit folder (special-attack art), scaled in screen px. None if missing."""
+        key = (filename, scale)
+        if key not in self._effects:
+            src = self._load(os.path.join(self.folder, filename))
+            self._effects[key] = _scaled(src, scale)[0] if src is not None else None
+        return self._effects[key]
 
     @staticmethod
     def _load(path):
@@ -238,12 +248,16 @@ class AttackContext:
 
 class Animation:
     duration = 0.7
+    targets_include_self = False   # True for team-wide effects (heals) that also affect the caster
 
     def pose(self, p: float) -> Pose:
         return Pose()
 
+    def draw_under(self, surf, p: float, ctx: AttackContext):
+        """Drawn BEFORE the ducks (ground effects such as healing circles)."""
+
     def draw_effects(self, surf, p: float, ctx: AttackContext):
-        pass
+        """Drawn AFTER the ducks (projectiles, particles, overlays)."""
 
     # shared projectile/impact helpers
     @staticmethod
@@ -350,12 +364,98 @@ class RogueAnim(Animation):
         self._impact(surf, p, self.LAND, ctx, (220, 220, 220), span=0.1)
 
 
+def _trapezoid(p, in0, in1, out0, out1):
+    """0 before in0, ramps to 1 by in1, holds, ramps back to 0 between out0 and out1."""
+    if p <= in0 or p >= out1:
+        return 0.0
+    if p < in1:
+        return (p - in0) / (in1 - in0)
+    if p > out0:
+        return (out1 - p) / (out1 - out0)
+    return 1.0
+
+
+def _blit_faded(surf, img, center, alpha, zoom=1.0):
+    """Blit img centered at `center` with 0..1 alpha and an optional zoom factor."""
+    if img is None or alpha <= 0:
+        return
+    if zoom != 1.0:
+        img = pygame.transform.smoothscale(img, (max(1, round(img.get_width() * zoom)),
+                                                  max(1, round(img.get_height() * zoom))))
+    else:
+        img = img.copy()
+    img.set_alpha(int(255 * min(alpha, 1.0)))
+    surf.blit(img, img.get_rect(center=center))
+
+
+class ClericSpecialAnim(Animation):
+    """Soothing Quack: an ethereal cross shines over the party, a healing circle appears under every
+    teammate, and healing particles drift up around each of them. Sprites live in the cleric folder."""
+    duration = 2.0
+    targets_include_self = True
+
+    CROSS_FILE, CIRCLE_FILE, PARTICLE_FILE = "etherial_cross.png", "healing_circle.png", "healing_particle.png"
+    CROSS_SCALE, CIRCLE_SCALE, PARTICLE_SCALE = 1.5, 1.15, 1.0   # on-screen scale of the png (circle ~ duck width)
+    CROSS_HEIGHT_ABOVE_DUCKS = 120     # px from the ducks' centers up to the cross center
+    PARTICLES_PER_DUCK = 5
+
+    @staticmethod
+    def _party_center(ctx):
+        n = max(1, len(ctx.targets))
+        return Vector2(sum(t.x for t in ctx.targets) / n, min((t.y for t in ctx.targets), default=0))
+
+    def draw_under(self, surf, p, ctx):
+        circle = ctx.acc.effect_image(self.CIRCLE_FILE, self.CIRCLE_SCALE)
+        a = _trapezoid(p, 0.30, 0.42, 0.88, 1.0)
+        for tgt in ctx.targets:
+            feet = Vector2(tgt.x, tgt.y + DUCK_DISPLAY_SIZE.y / 2 - 3)
+            _blit_faded(surf, circle, feet, a, zoom=0.6 + 0.4 * min(1.0, a * 1.5))   # grows as it fades in
+
+    def draw_effects(self, surf, p, ctx):
+        # ethereal cross: soft glow + cross, fades in, pulses, fades out
+        a = _trapezoid(p, 0.0, 0.18, 0.5, 0.66)
+        if a > 0:
+            center = self._party_center(ctx) - Vector2(0, self.CROSS_HEIGHT_ABOVE_DUCKS)
+            pulse = 1.0 + 0.08 * math.sin(p * 40)
+            cross = ctx.acc.effect_image(self.CROSS_FILE, self.CROSS_SCALE)
+            glow_r = int(55 * pulse)
+            glow = pygame.Surface((glow_r * 2, glow_r * 2), pygame.SRCALPHA)
+            for k in range(12, 0, -1):                      # many faint concentric rings = soft edge
+                pygame.draw.circle(glow, (255, 240, 150, int(a * 11)), (glow_r, glow_r), int(glow_r * k / 12))
+            surf.blit(glow, glow.get_rect(center=center))
+            _blit_faded(surf, cross, center, a, zoom=pulse)
+
+        # healing particles rising around each teammate
+        particle = ctx.acc.effect_image(self.PARTICLE_FILE, self.PARTICLE_SCALE)
+        for j, tgt in enumerate(ctx.targets):
+            for k in range(self.PARTICLES_PER_DUCK):
+                t0 = 0.45 + 0.06 * k + 0.02 * j
+                q = (p - t0) / 0.3
+                if not 0 <= q < 1:
+                    continue
+                dx = ((k * 37 + j * 13) % 11 - 5) * 5               # fixed spread, -25..25 px
+                y0 = tgt.y + 20 - (k % 3) * 14
+                pos = Vector2(tgt.x + dx, y0 - 40 * q)
+                _blit_faded(surf, particle, pos, math.sin(math.pi * q))
+
+
 ANIMATIONS = {
     "knight": KnightAnim,
     "mage": MageAnim,
     "cleric": ClericAnim,
     "rogue": RogueAnim,
 }
+
+
+SPECIAL_ANIMATIONS = {
+    "cleric": ClericSpecialAnim,
+}
+
+
+def special_animation_for(acc):
+    """Special-attack animation for this unit folder, or None if it doesn't have one yet."""
+    cls = SPECIAL_ANIMATIONS.get(acc.name if acc else "")
+    return cls() if cls else None
 
 
 def animation_for(acc) -> Animation:

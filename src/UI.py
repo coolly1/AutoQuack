@@ -1,3 +1,4 @@
+import math
 import os
 from zoneinfo import available_timezones
 
@@ -7,15 +8,17 @@ from pygame_gui.core import ObjectID
 from Units import COLOR, UNIT, TARGET, SPECIAL
 from dataclasses import dataclass
 from pygame.math import Vector2
-from accessories import (get_accessories, animation_for, AttackContext, Pose,
+from accessories import (get_accessories, animation_for, special_animation_for, AttackContext, Pose,
                          DUCK_DISPLAY_SIZE, DUCK_SCALE, TRAINING_DUCK_SCALE)
+import random
 
 class ui():
     clock = pygame.time.Clock()
     colorPaths = {
         COLOR.YELLOW: "..\\sprites\\ducks\\skins\\yellow_duck.png",
-        #COLOR.MALLARD: "..\\sprites\\ducks\\skins\\mallard_duck.png",
-        #COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png"
+        COLOR.MALLARD: "..\\sprites\\ducks\\skins\\mallard_duck.png",
+        COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png",
+        COLOR.BROWN: "..\\sprites\\ducks\\skins\\brown_duck.png"
     }
     
     flippedColorImages2 = {}
@@ -39,10 +42,10 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
+        self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
-        
-        
+
         for color, path in self.colorPaths.items():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
@@ -108,22 +111,22 @@ class ui():
                                                      object_id=ObjectID(class_id="@transparent_btn")))
         
         unit = -1
-        
+        highlighted_unit = -1
+
         while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if unit >= 0:
-                        if event.ui_element == train_button_1:
-                            return 1, unit
-                        if event.ui_element == train_button_2:
-                            return 2, unit
-                        if event.ui_element == train_button_3:
-                            return 3, unit
-                        if event.ui_element == train_button_4:
-                            return 4, unit
+                    if event.ui_element == train_button_1:
+                        return 1, unit
+                    if event.ui_element == train_button_2:
+                        return 2, unit
+                    if event.ui_element == train_button_3:
+                        return 3, unit
+                    if event.ui_element == train_button_4:
+                        return 4, unit
                     if event.ui_element == fight_button:
                         return 0, -1
                     for i in range(4):
@@ -140,16 +143,41 @@ class ui():
                                 unit = i
     
                 manager.process_events(event)
-    
+
+            # outline the selected duck; only re-theme the buttons when the selection actually changes
+            if unit != highlighted_unit:
+                for i in range(4):
+                    if i == unit:
+                        duck_buttons[i].change_object_id(ObjectID(class_id="@transparent_border_btn", object_id="#selected"))
+                    else:
+                        duck_buttons[i].change_object_id(ObjectID(class_id="@transparent_btn"))
+                highlighted_unit = unit
+                
+            if unit >= 0:
+                train_button_1.enable()
+                train_button_2.enable()
+                train_button_3.enable()
+                train_button_4.enable()
+            else:
+                train_button_1.disable()
+                train_button_2.disable()
+                train_button_3.disable()
+                train_button_4.disable()
+            
+            # stat panel shows the selected duck (drawn below, after the background)
+            stat_unit = self.player[unit] if unit >= 0 else None
+
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
             for i in range(4):
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
+            if stat_unit is not None:
+                self.stats.draw(stat_unit)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
-                
+
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -211,6 +239,8 @@ class ui():
                 completion_bar.draw(max(0.0, (cur_flaps)/flaps_needed))
                 cloud_1.draw(score+1)
                 cloud_2.draw(score+1)
+                cloud_3.draw(score+1)
+                cloud_4.draw(score+1)
 
                 # Draw panel
                 border_rect = pygame.Rect(343, 76, 93, 93)
@@ -237,7 +267,7 @@ class ui():
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
-
+        return score
     def minigame_2(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -275,6 +305,8 @@ class ui():
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if return_button and event.ui_element == return_button:
                         return score
+
+                self.window_surface.blit(self.background, (0, 0))
 
                 if total_time_limit >= elapsed_time > MEMORIZE_TIME and not is_minigame_finished:
                     if event.type == pygame.KEYDOWN:
@@ -321,6 +353,94 @@ class ui():
             manager.draw_ui(self.window_surface)
             pygame.display.update()
 
+    def minigame_3(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        hill_path = os.path.join(BASE_DIR, "../sprites/cliff_side_background.png")
+
+        # self.background.fill(pygame.Color('#87CEEB'))
+        bg_image = pygame.image.load(hill_path).convert()
+
+        # 4. Scale the image to match your window size
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+        boulder_path = os.path.join(BASE_DIR, "../sprites/rock1.png")
+        boulder_array = []
+        rock = pygame.transform.scale(pygame.image.load(boulder_path).convert_alpha(), (80, 80))
+
+        duck_x = 100
+        duck_y = 450
+        score = 0.0
+        elapsed_time = 0.0
+        is_minigame_finished = False
+        return_button = None
+
+        while self.is_running:
+            time_second = self.clock.tick(60)/1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+                manager.process_events(event)
+
+            manager.update(time_second)
+
+            duck_rec = pygame.Rect(duck_x, duck_y, 96, 96)
+            is_touched = False
+
+            for boulder in boulder_array:
+                boulder_rec = pygame.Rect(boulder.x, boulder.y, 96, 96)
+                is_touched = is_touched or boulder_rec.colliderect(duck_rec)
+                if(boulder.y > 600):
+                    score += 0.3
+                    boulder_array.pop(0)
+
+            if(not is_touched):
+                keys = pygame.key.get_pressed()
+
+                if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+                    duck_x = max(duck_x-5, 0)
+
+                if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+                    duck_x = min(duck_x+5, 800-100)
+
+                self.window_surface.blit(bg_image, (0, 0))
+
+                if(elapsed_time > 3/(1+score)):
+                    boulder_array.append(Boulder(image=rock, screen=self.window_surface, x=random.randint(0, 720), y=-100, vel=0, accel=score+1.0))
+                    elapsed_time = 0.0
+
+                for boulder in boulder_array:
+                    boulder.draw(time_second)
+
+                # Draw panel
+                border_rect = pygame.Rect(343, 76, 93, 93)
+                pygame.draw.rect(self.window_surface, (217,217,217), border_rect)
+
+                # calc text
+                font = pygame.font.Font(None, 50)
+                text_surface = font.render(f"{score:.2f}", True, (0, 0, 0))
+
+                # get the text rectangle
+                text_rect = text_surface.get_rect()
+                text_rect.center = (343 + 93/2, 76 + 93/2)
+
+                # draw the text
+                self.window_surface.blit(text_surface, text_rect)
+
+                self.draw_duck2(self.player[unit], duck_x, duck_y)
+
+            elif(not is_minigame_finished):
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+            else:
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+        return score
 
     def draw_duck2(self, unit:UNIT, x:int, y:int):
         """Training-scene duck (half size, faces right) with its hat and weapon at rest."""
@@ -352,24 +472,22 @@ class ui():
         return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
-        # TODO: special attacks will get their own animations; skip them for now
-        if is_special:
-            return
-
-        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
-
         units = list(self.player) + list(enemy_team)
         facing = 1 if active_unit < 4 else -1
         active = units[active_unit]
 
         acc = get_accessories(active.path)
-        anim = animation_for(acc)
+        anim = special_animation_for(acc) if is_special else animation_for(acc)
+        if anim is None:
+            return  # TODO: specials without their own animation yet are skipped
+
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         duration = anim.duration
         ctx = None
         if acc is not None:
             targets = [self._slot_pos(i) + DUCK_DISPLAY_SIZE / 2
                        for i, u in enumerate(units)
-                       if i != active_unit and any(u is a for a in affected_units)]
+                       if (i != active_unit or anim.targets_include_self) and any(u is a for a in affected_units)]
             ctx = AttackContext(acc, anim, self._slot_pos(active_unit), facing, targets)
 
         elapsed = 0.0
@@ -392,6 +510,8 @@ class ui():
 
             self.window_surface.blit(self.background, (0, 0))
             pose = anim.pose(progress)
+            if ctx is not None:
+                anim.draw_under(self.window_surface, progress, ctx)
             # draw the attacker last so it (and its lunge) is on top
             for i in [i for i in range(8) if i != active_unit] + [active_unit]:
                 pos = self._slot_pos(i)
@@ -430,6 +550,45 @@ class progress_bar():
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
 
 @dataclass
+class stat_panel():
+    bbox: tuple[int, int, int, int]
+    screen: pygame.Surface
+    bg_color: tuple[int, int, int] = (217, 217, 217)
+    border_color: tuple[int, int, int] = (0, 0, 0)
+    text_color: tuple[int, int, int] = (0, 0, 0)
+
+    def __post_init__(self):
+        self.title_font = pygame.font.Font(None, 36)
+        self.font = pygame.font.Font(None, 30)
+
+    @staticmethod
+    def _fmt(value) -> str:
+        return format(value, "g")  # 12 -> "12", 8.2000001 -> "8.2"
+
+    def draw(self, unit: UNIT):
+        rect = pygame.Rect(self.bbox)
+        pygame.draw.rect(self.screen, self.bg_color, rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.border_color, rect, width=3, border_radius=8)
+
+        class_name = os.path.basename(unit.path.replace("\\", "/")).capitalize()
+        title = self.title_font.render(f"{class_name} stats", True, self.text_color)
+        self.screen.blit(title, (rect.x + 15, rect.y + 10))
+
+        rows = [
+            ("Health", unit.max_health),
+            ("Attack", unit.attack_dmg),
+            ("Speed", unit.speed),
+            ("Ability", unit.special_attack),
+        ]
+        y = rect.y + 50
+        for label, value in rows:
+            self.screen.blit(self.font.render(label, True, self.text_color), (rect.x + 20, y))
+            value_surface = self.font.render(self._fmt(value), True, self.text_color)
+            self.screen.blit(value_surface, (rect.right - 20 - value_surface.get_width(), y))
+            y += 29
+
+
+@dataclass
 class rewards_panel():
     bbox: tuple[int, int, int, int]
     color: tuple[int, int, int]
@@ -443,7 +602,7 @@ class rewards_panel():
 
         # calc text
         font = pygame.font.Font(None, 50)
-        text_surface = font.render(str(score), True, (0,0,0))
+        text_surface = font.render(f"{score:.1f}", True, (0,0,0))
 
         # get the text rectangle
         text_rect = text_surface.get_rect()
@@ -500,6 +659,25 @@ class Clouds:
         self.x -= movement
         if(self.x < -200):
             self.x = 1000
+
+        image_rect = self.image.get_rect()
+        image_rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, image_rect)
+
+@dataclass
+class Boulder:
+    screen: pygame.display
+    image: pygame.image
+    x: int
+    y: int
+    vel: int
+    accel: int
+
+    def reset(self, score, x, y):
+        self.accel = score
+    def draw(self, time):
+        self.vel += self.accel * time
+        self.y += math.floor(self.vel)
 
         image_rect = self.image.get_rect()
         image_rect.topleft = (self.x, self.y)
