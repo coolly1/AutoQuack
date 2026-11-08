@@ -120,7 +120,11 @@ class UNIT:
 
         if self.current_charge >= self.max_charge:
             self.current_charge = 0
-            return self.special_action
+
+            match self.special_action:
+                case SPECIAL.ABYSSAL_SPLASH:
+                    return abyssal_splash(self)
+
         else:
             self.current_charge += 1
             return (self.attack_dmg, self.normal_target, False, False)
@@ -129,7 +133,7 @@ class UNIT:
         return self.current_health <= 0
 
     def apply_damage(self, amount):
-        self.current_health += max(0, self.current_health - amount)
+        self.current_health = max(0, self.current_health - amount)
         pass
 
 

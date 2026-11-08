@@ -23,7 +23,7 @@ class battler():
         random.seed(SEED_RAND)
 
     def get_enemy_list(self, round_idx: int) -> list[UNIT]:
-        return [load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
+        return [load_unit("AutoQuack/data/mega_peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
               load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
 
     def start_battle(self, round_idx: int) -> bool:
@@ -60,9 +60,9 @@ class battler():
             target_team: int
 
             if(is_self):
-                target_team = active_unit_idx < 4
-            else:
                 target_team = active_unit_idx >= 4
+            else:
+                target_team = active_unit_idx < 4
 
             # find effected units
             affected_units: list[UNIT] = []
@@ -70,6 +70,7 @@ class battler():
             match target:
                 case TARGET.FRONT:
                     affected_units.append(teams[target_team][fronts[target_team]])
+                    print(f"Duck Idx {active_unit_idx} dealt to {fronts[target_team]} took damage, health was {teams[target_team][fronts[target_team]].current_health}")
                 case TARGET.BACK:
                     affected_units.append(teams[target_team][backs[target_team]])
                 case TARGET.SELF:

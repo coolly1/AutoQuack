@@ -14,10 +14,10 @@ def main():
     # pick ducks screens
 
     #init_player
-    player = [load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
+    player = [load_unit("AutoQuack/data/mega_peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
               load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
 
-    # battler_obj = battler(player, UI)
+    battler_obj = battler(player, UI)
 
     for round_num in range(MAX_ROUNDS):
         # reset unit damage and charge
