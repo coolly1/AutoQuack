@@ -28,14 +28,14 @@ class TRAINABLE_STAT(Enum):
     SPK = 2
 
 class SPECIAL(Enum):
-    HEALING_QUACK = "Soothing Quack"
+    SOOTHING_QUACK = "Soothing Quack"
     FINAL_QUACK = "The Final Quack"
     BILL_BEATDOWN = "Bill Beatdown"
     ABYSSAL_SPLASH = "Abyssal Splash"
     DUCKY_DEFENSE = "Ducky Defense"
 
 #SPECIAL ACTION FUNCTIONS
-def healing_quack(caster):
+def soothing_quack(caster):
     """Heals FRONT teammate based on special attack power."""
     heal_amount = caster.special_attack * 2
     return (round(heal_amount), TARGET.FRONT, False, True)
