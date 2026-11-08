@@ -94,6 +94,10 @@ class battler():
                 case _:
                     print("BAD")
 
+            
+            # call GUI
+            self.gui.show_battle(active_unit_idx, affected_units, is_special, enemy_team)
+            
             # apply effects
             for unit in affected_units:
                 unit.apply_damage(damage)
@@ -123,9 +127,6 @@ class battler():
 
             # schedule the unit again
             self.schedule_unit(active_unit_idx, prev_priority=prev_priority)
-
-            # call GUI
-            self.gui.show_battle(active_unit_idx, affected_units, is_special, enemy_team)
 
         return False
 
