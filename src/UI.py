@@ -34,7 +34,7 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
-        
+        self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
         
         
@@ -139,43 +139,56 @@ class ui():
                 
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
-
+        self.background.fill(pygame.Color('#87CEEB'))
         time_bar = progress_bar(bbox=(100, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
         completion_bar = progress_bar(bbox=(600, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
 
         flaps_needed = 4
         is_up_last_pressed = False
         cur_flaps = 0
-        # start_time =
+        elapsed_time = 0.0
+        TIMEOUT = 5.0
+        is_minigame_finished = False
+        return_button = None
+        score = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60)/1000.0
+            elapsed_time += time_second
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    pass
+                    if return_button and event.ui_element == return_button:
+                        return score
                 manager.process_events(event)
-
-            keys = pygame.key.get_just_pressed()
-
-            if keys[pygame.K_UP] or keys[pygame.K_w]:
-                is_up_last_pressed = True
-
-            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
-                if(is_up_last_pressed):
-                    is_up_last_pressed = False
-                    cur_flaps += 1
 
             manager.update(time_second)
 
-            self.window_surface.blit(self.background, (0, 0))
+            if(elapsed_time < TIMEOUT):
+                keys = pygame.key.get_just_pressed()
+
+                if keys[pygame.K_UP] or keys[pygame.K_w]:
+                    is_up_last_pressed = True
+
+                if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                    if(is_up_last_pressed):
+                        is_up_last_pressed = False
+                        cur_flaps += 1
+
+                self.window_surface.blit(self.background, (0, 0))
+
+                # start drawing
+                time_bar.draw(max(0.0, (TIMEOUT-elapsed_time)/TIMEOUT))
+                completion_bar.draw(max(0.0, (cur_flaps)/flaps_needed))
+
+            elif(not is_minigame_finished):
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+            else:
+                self.rewards.draw(score)
+
             manager.draw_ui(self.window_surface)
-
-            # start drawing
-            time_bar.draw(1.0)
-            completion_bar.draw(1.0)
-
             pygame.display.update()
 
 
@@ -219,7 +232,7 @@ class progress_bar():
     inner_offset: int
     inner_color: tuple[int, int, int]
     outer_color: tuple[int, int, int]
-    screen: pygame.display
+    screen: pygame.Surface
 
     def draw(self, percent):
 
@@ -234,3 +247,61 @@ class progress_bar():
             inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[3] - 2*self.inner_offset))
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
 
+@dataclass
+class rewards_panel():
+    bbox: tuple[int, int, int, int]
+    color: tuple[int, int, int]
+    screen: pygame.Surface
+
+    def draw(self, score):
+
+        # Draw panel
+        border_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.color, border_rect)
+
+        # calc text
+        font = pygame.font.Font(None, 50)
+        text_surface = font.render(str(score), True, (0,0,0))
+
+        # get the text rectangle
+        text_rect = text_surface.get_rect()
+        text_rect.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2)
+
+        # draw the text
+        self.screen.blit(text_surface, text_rect)
+
+    def draw_button(self, manager):
+        return pygame_gui.elements.UIButton(relative_rect=pygame.Rect((self.bbox[0] + self.bbox[2]/2 - 50,
+                                                                       self.bbox[1] + self.bbox[3]/2 + 100),
+                                                                      (100, 50)),
+                                                    text='Return!',
+                                                    manager=manager)
+
+
+
+
+@dataclass
+class SpriteGrid:
+    bbox: tuple[int, int, int, int]
+    inner_offset: int
+    inner_color: tuple[int, int, int]
+    outer_color: tuple[int, int, int]
+    screen: pygame.display
+
+    sprite_size: int = 64
+    columns: int = 6
+
+    def draw(self, sequence_array,image_dict):
+        container_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.inner_color, container_rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.outer_color, container_rect, width=3, border_radius=8)
+
+        for index, color_key in enumerate(sequence_array):
+            row = index // self.columns
+            col = index % self.columns
+
+            x = self.bbox[0] + self.inner_offset + col * (self.sprite_size + self.inner_offset)
+            y = self.bbox[1] + self.inner_offset + row * (self.sprite_size + self.inner_offset)
+
+            sprite_surface = image_dict[color_key]
+            self.screen.blit(sprite_surface, (x, y))
