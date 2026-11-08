@@ -24,16 +24,16 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="3.7005525"
-     inkscape:cx="34.04897"
-     inkscape:cy="130.38594"
+     inkscape:zoom="1.8502763"
+     inkscape:cx="211.3198"
+     inkscape:cy="238.07256"
      inkscape:window-width="1896"
      inkscape:window-height="1209"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1"
-     showgrid="false">
+     showgrid="true">
     <inkscape:grid
        id="grid2"
        units="mm"
@@ -47,7 +47,7 @@
        opacity="0.14901961"
        empspacing="5"
        enabled="true"
-       visible="false" />
+       visible="true" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
@@ -55,6 +55,17 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <ellipse
+       style="fill:#55d400;stroke:#44aa00;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       id="path23"
+       cx="47.280914"
+       cy="53.538788"
+       rx="6.2510896"
+       ry="1.5007427"
+       inkscape:label="healing_circle"
+       inkscape:export-filename="healing_circle.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
     <g
        id="g309-5"
        inkscape:label="duck"
@@ -285,7 +296,8 @@
        inkscape:label="cross"
        inkscape:export-filename="cross.png"
        inkscape:export-xdpi="424.64001"
-       inkscape:export-ydpi="424.64001">
+       inkscape:export-ydpi="424.64001"
+       transform="translate(0.80658413,-0.38409262)">
       <path
          style="fill:#c8ab37;stroke:#a0892c;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
          d="m 45.030706,32.026082 h 3.999997 v -10 h 4 v -4 h -4 v -3.999999 h -4 v 3.999999 h -4 v 4 l 4.000003,1e-6 z"
@@ -465,7 +477,7 @@
          y="0"
          xlink:href="#g9"
          id="use22"
-         transform="matrix(0.32868991,-0.05027876,0.05027876,0.32868991,33.14931,56.472124)" />
+         transform="matrix(0.32868991,-0.05027876,0.05027876,0.32868991,32.903506,56.638926)" />
     </g>
     <g
        id="g25"
@@ -609,6 +621,79 @@
          inkscape:randomized="0"
          d="m 47.409831,47.510944 c -0.439977,0.439977 -1.084122,-0.661457 -1.706344,-0.661457 -0.622221,0 -1.266366,1.101434 -1.706344,0.661457 -0.439977,-0.439977 0.661457,-1.084122 0.661457,-1.706344 0,-0.622222 -1.101434,-1.266367 -0.661457,-1.706344 0.439978,-0.439977 1.084123,0.661456 1.706344,0.661456 0.622222,0 1.266367,-1.101433 1.706344,-0.661456 0.439978,0.439977 -0.661456,1.084122 -0.661456,1.706344 0,0.622222 1.101434,1.266366 0.661456,1.706344 z"
          transform="rotate(-45,47.507575,44.500606)" />
+    </g>
+    <g
+       id="g24"
+       inkscape:label="meter">
+      <rect
+         style="fill:#338000;stroke:#225500;stroke-width:1.95126;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect13"
+         width="40.545357"
+         height="15.978234"
+         x="69.219292"
+         y="12.145637" />
+      <rect
+         style="fill:#66ff00;stroke:#66ff00;stroke-width:1.51567;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect14"
+         width="4.520092"
+         height="9.7971563"
+         x="72.31398"
+         y="15.236176" />
+      <rect
+         style="fill:#338000;stroke:#44aa00;stroke-width:1.51567;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect14-7"
+         width="4.520092"
+         height="9.7971563"
+         x="79.773895"
+         y="15.236176" />
+      <rect
+         style="fill:#338000;stroke:#44aa00;stroke-width:1.51567;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect14-7-6"
+         width="4.520092"
+         height="9.7971563"
+         x="87.23381"
+         y="15.236176" />
+      <rect
+         style="fill:#338000;stroke:#44aa00;stroke-width:1.51567;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect14-7-4"
+         width="4.520092"
+         height="9.7971563"
+         x="94.693726"
+         y="15.236176" />
+      <rect
+         style="fill:#338000;stroke:#44aa00;stroke-width:1.51567;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="rect14-7-3"
+         width="4.520092"
+         height="9.7971563"
+         x="102.15364"
+         y="15.236176" />
+    </g>
+    <path
+       style="fill:#55d400;stroke:#44aa00;stroke-width:0.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       d="m 46.780915,58.943778 h -1 v -1.000001 h 1 v -1.000001 h 1 v 1.000001 h 1 v 1.000001 h -1 v 1 h -1 z"
+       id="path24"
+       inkscape:label="healing_particle"
+       inkscape:export-filename="healing_particle.png"
+       inkscape:export-xdpi="96"
+       inkscape:export-ydpi="96" />
+    <g
+       id="g26"
+       style="fill:#ffdd55;fill-opacity:0.694118;stroke:#ffdd55;stroke-opacity:0.694118"
+       transform="translate(-15,-0.99999986)"
+       inkscape:label="etherial_cross">
+      <path
+         style="fill:#ffdd55;fill-opacity:0.694118;stroke:#ffdd55;stroke-width:0.73361;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.694118;paint-order:normal"
+         d="m 60.000001,81.999998 h 5 v -10 h 4 v -5 h -4 v -4 h -5 v 4 h -4 l 0.01632,5 h 3.983681 z"
+         id="path2-5-1-8"
+         sodipodi:nodetypes="ccccccccccccc" />
+      <path
+         style="fill:#ffdd55;fill-opacity:0.694118;stroke:#ffdd55;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.694118;paint-order:normal"
+         d="m 62.000001,79.999998 h 1 v -10 h 4 v -1 h -4 v -4 h -1 v 4 h -4 v 1 h 4 z"
+         id="path2-5-10"
+         sodipodi:nodetypes="ccccccccccccc"
+         inkscape:export-filename="etherial_cross.png"
+         inkscape:export-xdpi="96"
+         inkscape:export-ydpi="96" />
     </g>
   </g>
 </svg>
