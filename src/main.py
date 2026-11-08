@@ -40,7 +40,7 @@ def main():
         # show training, training_state = 0 exit
             training_count = 3
             for train_number in range(training_count):
-                training_state, unit = UI.show_training()
+                training_state, unit = UI.show_training(training_count - train_number)
                 match training_state:
                     case 1:
                         score = UI.minigame_4(unit)

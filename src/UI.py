@@ -149,7 +149,7 @@ class ui():
             pygame.display.update()
 
 
-    def show_training(self):
+    def show_training(self, training_number: int):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
@@ -170,6 +170,12 @@ class ui():
         fight = os.path.join(BASE_DIR, "../sprites/fight_button.png")
         fight_image = pygame.image.load(fight).convert()
         fight_image = pygame.transform.scale(fight_image, (150, 50))
+        
+        bolt_path = os.path.join(BASE_DIR, "../sprites/lightning_bolt.png")
+        bolt_path = os.path.abspath(bolt_path)
+        bolt_image = pygame.image.load(bolt_path).convert_alpha()
+        bolt_image = pygame.transform.scale_by(bolt_image, 0.3)
+        
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (200, 75)),
                                                      text='Train Health',
                                                      manager=manager)
@@ -263,6 +269,9 @@ class ui():
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
             if stat_unit is not None:
                 self.stats.draw(stat_unit)
+            
+            for i in range(training_number):
+                self.window_surface.blit(bolt_image, (800 - (i + 1) * (10 + bolt_image.get_width()), 10))
             
             self.window_surface.blit(health_image, (50, 50))
             self.window_surface.blit(speed_image, (50, 150))
