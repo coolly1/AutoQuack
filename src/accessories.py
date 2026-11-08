@@ -14,7 +14,8 @@ positions.json layout:
   "weapon": {"scale": 0.4, "rest_angle": -75,
              "grip": [x, y],    # pixel ON weapon.png that sits in the duck's hand (pivot)
              "tip":  [x, y],    # pixel ON weapon.png where projectiles spawn
-             "mount": [x, y]},  # pixel ON the duck skin where the grip attaches
+             "mount": [x, y],   # pixel ON the duck skin where the grip attaches
+             "spawn_offset": [x, y]},  # optional: shift where projectiles spawn (source px, right-facing; -y = higher)
   "hat":    {"scale": 0.75,
              "anchor": [x, y],  # pixel ON hat.png
              "mount": [x, y],   # pixel ON the duck skin
@@ -25,19 +26,21 @@ positions.json layout:
 import json
 import math
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import pygame
 from pygame.math import Vector2
 
 DUCK_SRC_W = 193          # width of the skin png before UI scales it down
-DUCK_SCALE = 1 / 3        # must match the scale UI applies to the skin
+DUCK_SCALE = 1 / 3        # battle scene: must match the scale UI applies to the skin
+TRAINING_DUCK_SCALE = 1 / 2   # training scene (draw_duck2)
 DUCK_DISPLAY_SIZE = Vector2(64, 65)
 
 SPRITES_ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "sprites"))
 
 DEFAULT_CONFIG = {
-    "weapon": {"scale": 1.0, "rest_angle": 0, "grip": [0, 0], "tip": [0, 0], "mount": [100, 130]},
+    "weapon": {"scale": 1.0, "rest_angle": 0, "grip": [0, 0], "tip": [0, 0], "mount": [100, 130],
+               "spawn_offset": [0, 0]},
     "hat": {"scale": 1.0, "anchor": [0, 0], "mount": [100, 20]},
     "projectile": {"scale": 2.0},
 }
@@ -89,6 +92,7 @@ class _Oriented:
     tip: Vector2
     hand_mount: Vector2
     proj: pygame.Surface | None = None
+    spawn: Vector2 = field(default_factory=Vector2)
 
 
 class Accessories:
@@ -119,19 +123,20 @@ class Accessories:
         except (pygame.error, FileNotFoundError):
             return None
 
-    def oriented(self, mirrored: bool) -> _Oriented:
-        if mirrored not in self._cache:
-            self._cache[mirrored] = self._build(mirrored)
-        return self._cache[mirrored]
+    def oriented(self, mirrored: bool, scale: float = DUCK_SCALE) -> _Oriented:
+        key = (mirrored, scale)
+        if key not in self._cache:
+            self._cache[key] = self._build(mirrored, scale)
+        return self._cache[key]
 
-    def _build(self, mirrored):
+    def _build(self, mirrored, duck_scale):
         cfg_w, cfg_h = self.config["weapon"], self.config["hat"]
-        duck_w = DUCK_SRC_W * DUCK_SCALE
+        duck_w = DUCK_SRC_W * duck_scale
 
         def prep(src, scale, points, art_faces_left=False):
             if src is None:
                 return None, [Vector2() for _ in points]
-            img, (rx, ry) = _scaled(src, scale * DUCK_SCALE)
+            img, (rx, ry) = _scaled(src, scale * duck_scale)
             pts = [Vector2(p[0] * rx, p[1] * ry) for p in points]
             # the image must be flipped when the duck's facing differs from the way the art was drawn
             if mirrored != art_faces_left:
@@ -144,22 +149,25 @@ class Accessories:
                               art_faces_left=cfg_h.get("art_faces_left", False))
 
         def mount(m):
-            v = Vector2(m) * DUCK_SCALE
+            v = Vector2(m) * duck_scale
             return Vector2(duck_w - v.x, v.y) if mirrored else v
 
         proj, _ = prep(self.proj_src, self.config["projectile"]["scale"], [])
+        sx, sy = cfg_w.get("spawn_offset", [0, 0])
+        spawn = Vector2(-sx if mirrored else sx, sy) * duck_scale
 
-        return _Oriented(hat, anchor, mount(cfg_h["mount"]), wep, grip, tip, mount(cfg_w["mount"]), proj)
+        return _Oriented(hat, anchor, mount(cfg_h["mount"]), wep, grip, tip, mount(cfg_w["mount"]), proj, spawn)
 
     # ---- drawing
-    def weapon_tip(self, duck_pos, mirrored, angle) -> Vector2:
-        o = self.oriented(mirrored)
+    def weapon_tip(self, duck_pos, mirrored, angle, scale=DUCK_SCALE) -> Vector2:
+        """Where projectiles spawn: the weapon tip plus the optional spawn_offset."""
+        o = self.oriented(mirrored, scale)
         a = -angle if mirrored else angle
-        return Vector2(duck_pos) + o.hand_mount + (o.tip - o.grip).rotate(-a)
+        return Vector2(duck_pos) + o.hand_mount + (o.tip - o.grip).rotate(-a) + o.spawn
 
-    def draw_weapon(self, surf, duck_pos, mirrored, angle):
+    def draw_weapon(self, surf, duck_pos, mirrored, angle, scale=DUCK_SCALE):
         """angle is in the right-facing frame (absolute, rest angle already included)."""
-        o = self.oriented(mirrored)
+        o = self.oriented(mirrored, scale)
         if o.wep is None:
             return
         a = -angle if mirrored else angle
@@ -185,8 +193,8 @@ class Accessories:
         a = -angle if mirrored else angle
         _blit_rotated(surf, o.proj, Vector2(o.proj.get_size()) / 2, center, a)
 
-    def draw_hat(self, surf, duck_pos, mirrored):
-        o = self.oriented(mirrored)
+    def draw_hat(self, surf, duck_pos, mirrored, scale=DUCK_SCALE):
+        o = self.oriented(mirrored, scale)
         if o.hat is not None:
             surf.blit(o.hat, Vector2(duck_pos) + o.hat_mount - o.hat_anchor)
 
@@ -276,11 +284,11 @@ class KnightAnim(Animation):
 
 class MageAnim(Animation):
     """Raise the wand, flick it forward, shoot an orb."""
-    duration = 1.0
-    LAUNCH, LAND = 0.45, 0.8
+    duration = 0.8                 # orb flight takes (LAND - LAUNCH) * duration = 0.18 s (was 0.35 s)
+    LAUNCH, LAND = 0.5, 0.72
 
     def pose(self, p):
-        return Pose(angle=keyframes([(0, 0), (0.3, 55), (0.45, -35), (0.7, -35), (1, 0)], p))
+        return Pose(angle=keyframes([(0, 0), (0.3, 55), (0.5, -35), (0.75, -35), (1, 0)], p))
 
     def draw_effects(self, surf, p, ctx):
         r = 7
@@ -299,11 +307,11 @@ class MageAnim(Animation):
 
 class ClericAnim(Animation):
     """Small cross swing, then a golden bolt."""
-    duration = 0.9
-    LAUNCH, LAND = 0.4, 0.75
+    duration = 1.3                 # bolt flight takes (LAND - LAUNCH) * duration = 0.72 s (was 0.32 s)
+    LAUNCH, LAND = 0.28, 0.83
 
     def pose(self, p):
-        return Pose(angle=keyframes([(0, 0), (0.25, 20), (0.4, -20), (0.65, -20), (1, 0)], p))
+        return Pose(angle=keyframes([(0, 0), (0.18, 20), (0.28, -20), (0.5, -20), (1, 0)], p))
 
     def draw_effects(self, surf, p, ctx):
         r = 6

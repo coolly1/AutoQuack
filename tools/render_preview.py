@@ -4,6 +4,7 @@ Headless preview of duck accessories and attack animations (no window opens).
 Run from anywhere:   python tools/render_preview.py
 Output PNGs go to:   tools/preview_out/
   static.png          all four classes at rest (players left, enemies right)
+  training.png        the training-scene ducks (draw_duck2, half size)
   <name>_strip.png    one row per animation frame
 
 Edit positions.json in sprites/ducks/units/<class>/ and re-run to see the change.
@@ -52,6 +53,13 @@ for i in range(4):
     g.draw_duck(enemy[i], 450 + 75 * i, 400, False)
 crop = surf.subsurface(pygame.Rect(30, 370, 740, 130)).copy()
 save(pygame.transform.scale(crop, (crop.get_width() * 2, crop.get_height() * 2)), "static.png")
+
+
+# training scene ducks (draw_duck2)
+surf.fill(BG)
+for i in range(4):
+    g.draw_duck2(player[i], 50 + 150 * i, 400)
+save(surf.subsurface(pygame.Rect(0, 340, 700, 200)).copy(), "training.png")
 
 
 def frame(active, targets, p):

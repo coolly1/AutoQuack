@@ -4,7 +4,8 @@
         "rest_angle": -60,
         "grip": [35, 255],
         "tip": [35, 0],
-        "mount": [125, 140]
+        "mount": [125, 140],
+        "spawn_offset": [0, -50]
     },
     "hat": {
         "scale": 1.0,

@@ -6,7 +6,7 @@ from Units import COLOR, UNIT, TARGET, SPECIAL
 from dataclasses import dataclass
 from pygame.math import Vector2
 from accessories import (get_accessories, animation_for, AttackContext, Pose,
-                         DUCK_DISPLAY_SIZE)
+                         DUCK_DISPLAY_SIZE, DUCK_SCALE, TRAINING_DUCK_SCALE)
 
 class ui():
     clock = pygame.time.Clock()
@@ -101,7 +101,7 @@ class ui():
         
         for i in range(4):
             duck_buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((45 + (i * 150), 395), (110, 110)),
-                                                     text='Duck ' + str(i + 1),
+                                                     text='',
                                                      manager=manager,
                                                      object_id=ObjectID(class_id="@transparent_btn")))
         
@@ -113,7 +113,7 @@ class ui():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if unit > 0:
+                    if unit >= 0:
                         if event.ui_element == train_button_1:
                             return 1, unit
                         if event.ui_element == train_button_2:
@@ -127,8 +127,15 @@ class ui():
                     for i in range(4):
                         if event.ui_element == duck_buttons[i]:
                             if(unit > -1):
-                                pass
-                            unit = i
+                                if(unit == i):
+                                    unit = -1
+                                else:
+                                    duck = self.player[i]
+                                    self.player[i] = self.player[unit]
+                                    self.player[unit] = duck
+                                    unit = -1
+                            else:
+                                unit = i
     
                 manager.process_events(event)
     
@@ -197,7 +204,18 @@ class ui():
 
 
     def draw_duck2(self, unit:UNIT, x:int, y:int):
+        """Training-scene duck (half size, faces right) with its hat and weapon at rest."""
         self.window_surface.blit(self.flippedColorImages2[unit.color], (x, y))
+        self._draw_accessories(unit, x, y, mirrored=False, scale=TRAINING_DUCK_SCALE)
+
+    def _draw_accessories(self, unit:UNIT, x:int, y:int, mirrored:bool, pose: Pose = None, scale: float = DUCK_SCALE):
+        acc = get_accessories(unit.path)
+        if acc is None:
+            return
+        if pose is None or pose.weapon_visible:
+            delta = pose.angle if pose else 0
+            acc.draw_weapon(self.window_surface, (x, y), mirrored, acc.rest_angle + delta, scale)
+        acc.draw_hat(self.window_surface, (x, y), mirrored, scale)
 
     def draw_duck(self, unit:UNIT, x:int, y:int, flipped:bool = False, pose: Pose = None):
         """flipped=True means the duck faces right (player side).
@@ -207,14 +225,7 @@ class ui():
         else:
             self.window_surface.blit(self.flippedColorImages3[unit.color], (x, y))
 
-        acc = get_accessories(unit.path)
-        if acc is None:
-            return
-        mirrored = not flipped  # accessories are authored right-facing
-        if pose is None or pose.weapon_visible:
-            delta = pose.angle if pose else 0
-            acc.draw_weapon(self.window_surface, (x, y), mirrored, acc.rest_angle + delta)
-        acc.draw_hat(self.window_surface, (x, y), mirrored)
+        self._draw_accessories(unit, x, y, mirrored=not flipped, pose=pose)  # accessories are authored right-facing
 
     @staticmethod
     def _slot_pos(idx: int) -> Vector2:
