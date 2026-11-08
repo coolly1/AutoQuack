@@ -24,16 +24,16 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="1.8502763"
-     inkscape:cx="211.3198"
-     inkscape:cy="238.07256"
+     inkscape:zoom="0.32708572"
+     inkscape:cx="541.14255"
+     inkscape:cy="2517.6886"
      inkscape:window-width="1896"
      inkscape:window-height="1209"
      inkscape:window-x="0"
      inkscape:window-y="0"
      inkscape:window-maximized="1"
-     inkscape:current-layer="layer1"
-     showgrid="true">
+     inkscape:current-layer="layer2"
+     showgrid="false">
     <inkscape:grid
        id="grid2"
        units="mm"
@@ -47,7 +47,7 @@
        opacity="0.14901961"
        empspacing="5"
        enabled="true"
-       visible="true" />
+       visible="false" />
   </sodipodi:namedview>
   <defs
      id="defs1" />
@@ -155,7 +155,7 @@
     <g
        id="g309-5-0"
        inkscape:label="mallard_duck"
-       inkscape:export-filename="./yellow_duck.png"
+       inkscape:export-filename="mallard_duck.png"
        inkscape:export-xdpi="424.64001"
        inkscape:export-ydpi="424.64001"
        transform="translate(-73.288346,-62.616083)">
@@ -695,5 +695,43 @@
          inkscape:export-xdpi="96"
          inkscape:export-ydpi="96" />
     </g>
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="rock_falling_mini_game">
+    <rect
+       style="fill:#6c5d53;fill-opacity:1;stroke:none;stroke-width:3.26143;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       id="rect26"
+       width="420.0719"
+       height="314.23859"
+       x="-105.03595"
+       y="350.84143" />
+    <path
+       style="fill:#483e37;fill-opacity:1;stroke:#483e37;stroke-width:16.7137;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       d="m -130.17564,511.39264 29.71558,-90.7187 77.36416,-28.05647 85.450944,19.85407 77.054956,-8.97935 75.16589,35.379 85.08676,-18.68132 19.94919,5.1801 42.03372,81.25433"
+       id="path30-3-1"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       style="fill:#6c5d53;fill-opacity:1;stroke:#6c5d53;stroke-width:16.7137;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       d="m -134.44423,560.26136 25.99747,-73.68488 77.078367,-8.03693 91.742797,29.42117 74.767016,-37.42201 74.85858,15.93145 83.10612,-21.54126 23.92984,16.04786 27.40827,78.39439"
+       id="path30-3"
+       sodipodi:nodetypes="ccccccccc" />
+    <path
+       style="fill:#917c6f;fill-opacity:1;stroke:#917c6f;stroke-width:16.7137;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       d="m -130.17564,629.93455 25.99747,-73.68488 70.214527,-18.33269 91.742797,20.42605 77.626946,-16.41517 74.5939,26.22721 81.65484,-27.83311 26.24104,9.756 30.81694,78.96638"
+       id="path30"
+       sodipodi:nodetypes="ccccccccc" />
+    <rect
+       style="fill:#333333;fill-opacity:1;stroke:none;stroke-width:0.994137;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       id="rect27"
+       width="420.0719"
+       height="66.008537"
+       x="-105.03595"
+       y="599.07147" />
+    <path
+       style="fill:none;fill-opacity:1;stroke:#ffcc00;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:48, 48;stroke-dashoffset:0;stroke-opacity:1;paint-order:normal"
+       d="M -105.03595,632.07574 H 315.03596"
+       id="path27" />
   </g>
 </svg>
