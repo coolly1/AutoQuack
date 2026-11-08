@@ -52,7 +52,7 @@ class ui():
         self.background.fill(pygame.Color('#000000'))
         self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
-        self.is_running = 
+        self.is_running = False
         self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
 
         for color, path in self.colorPaths.items():
