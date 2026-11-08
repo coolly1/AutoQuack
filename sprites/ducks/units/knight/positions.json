@@ -7,9 +7,9 @@
         "mount": [125, 140]
     },
     "hat": {
-        "scale": 0.75,
+        "scale": 1.0,
         "art_faces_left": true,
         "anchor": [56, 75],
-        "mount": [112, 28]
+        "mount": [110, 60]
     }
 }

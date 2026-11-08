@@ -1,0 +1,19 @@
+{
+    "weapon": {
+        "scale": 0.4,
+        "rest_angle": -60,
+        "grip": [35, 255],
+        "tip": [35, 0],
+        "mount": [125, 140],
+        "spawn_offset": [0, -50]
+    },
+    "hat": {
+        "scale": 1.0,
+        "art_faces_left": true,
+        "anchor": [74, 55],
+        "mount": [102, 48]
+    },
+    "projectile": {
+        "scale": 0.4
+    }
+}
