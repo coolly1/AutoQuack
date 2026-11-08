@@ -181,7 +181,7 @@ class UNIT:
     def apply_damage(self, amount):
         if self.is_dead():
             return
-        self.current_health = max(0, self.current_health - amount)
+        self.current_health = min(self.max_health, max(0, self.current_health - amount))
 
     def __str__(self):
         return str("current health: ") + str(self.current_health) + str(", current charge: ") + str(self.current_charge)

@@ -579,9 +579,15 @@ class ui():
                         face = -facing if pose.flip else facing     # flip = turned around (e.g. rogue behind its target)
                         self.draw_duck(units[i], pos.x + pose.offset.x + pose.dx * face, pos.y + pose.offset.y,
                                        face > 0, pose)
+                        hpPercent = max(0.0, units[i].current_health / units[i].max_health)
+                        hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        hpBar.draw(hpPercent)
                 else:
                     if not units[i].is_dead() or i in just_died:
                         self.draw_duck(units[i], pos.x, pos.y, i < 4)
+                        hpPercent = max(0.0, units[i].current_health / units[i].max_health)
+                        hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        hpBar.draw(hpPercent)
             if ctx is not None:
                 anim.draw_effects(self.window_surface, progress, ctx)
             manager.draw_ui(self.window_surface)
@@ -590,6 +596,8 @@ class ui():
             anim_finished = progress >= 1.0
 
         self._alive_units = [u for u in units if not u.is_dead()]
+    
+    
 
 
 @dataclass
