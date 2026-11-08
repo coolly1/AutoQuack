@@ -42,6 +42,7 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
+        self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
 
@@ -163,19 +164,20 @@ class ui():
                 train_button_3.disable()
                 train_button_4.disable()
             
-            if unit >= 0:
-                pass
-            
-            
+            # stat panel shows the selected duck (drawn below, after the background)
+            stat_unit = self.player[unit] if unit >= 0 else None
+
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
             for i in range(4):
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
+            if stat_unit is not None:
+                self.stats.draw(stat_unit)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
-                
+
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -265,7 +267,7 @@ class ui():
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
-
+        return score
     def minigame_2(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -456,6 +458,7 @@ class ui():
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
+        return score
 
 
 
@@ -665,6 +668,45 @@ class progress_bar():
         if current_bar_width > 0:
             inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[3] - 2*self.inner_offset))
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
+
+@dataclass
+class stat_panel():
+    bbox: tuple[int, int, int, int]
+    screen: pygame.Surface
+    bg_color: tuple[int, int, int] = (217, 217, 217)
+    border_color: tuple[int, int, int] = (0, 0, 0)
+    text_color: tuple[int, int, int] = (0, 0, 0)
+
+    def __post_init__(self):
+        self.title_font = pygame.font.Font(None, 36)
+        self.font = pygame.font.Font(None, 30)
+
+    @staticmethod
+    def _fmt(value) -> str:
+        return format(value, "g")  # 12 -> "12", 8.2000001 -> "8.2"
+
+    def draw(self, unit: UNIT):
+        rect = pygame.Rect(self.bbox)
+        pygame.draw.rect(self.screen, self.bg_color, rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.border_color, rect, width=3, border_radius=8)
+
+        class_name = os.path.basename(unit.path.replace("\\", "/")).capitalize()
+        title = self.title_font.render(f"{class_name} stats", True, self.text_color)
+        self.screen.blit(title, (rect.x + 15, rect.y + 10))
+
+        rows = [
+            ("Health", unit.max_health),
+            ("Attack", unit.attack_dmg),
+            ("Speed", unit.speed),
+            ("Ability", unit.special_attack),
+        ]
+        y = rect.y + 50
+        for label, value in rows:
+            self.screen.blit(self.font.render(label, True, self.text_color), (rect.x + 20, y))
+            value_surface = self.font.render(self._fmt(value), True, self.text_color)
+            self.screen.blit(value_surface, (rect.right - 20 - value_surface.get_width(), y))
+            y += 29
+
 
 @dataclass
 class rewards_panel():

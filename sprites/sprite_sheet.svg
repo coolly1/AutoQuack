@@ -24,9 +24,9 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.46256907"
-     inkscape:cx="618.28605"
-     inkscape:cy="649.63272"
+     inkscape:zoom="3.7005525"
+     inkscape:cx="317.52015"
+     inkscape:cy="167.67766"
      inkscape:window-width="1896"
      inkscape:window-height="1209"
      inkscape:window-x="0"
@@ -536,12 +536,12 @@
          sodipodi:nodetypes="cccccccsc" />
     </g>
     <path
-       style="fill:#4d4d4d;stroke:#333333;stroke-width:0.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+       style="fill:#4d4d4d;stroke:#333333;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
        d="m 57.303822,35.900791 c 1.0421,4.80152 1.320196,5.238317 2.150885,5.84617 1.787148,0.563487 2.480913,0.487697 4.472011,-0.394435 0,0 1.055409,-5.860234 -2.817661,-6.240924 -2.376258,-0.233566 -3.805235,0.789189 -3.805235,0.789189 z"
        id="path26-5"
        sodipodi:nodetypes="cccsc"
        inkscape:label="hood"
-       inkscape:export-filename="hood.png"
+       inkscape:export-filename="ducks/units/rogue/hat.png"
        inkscape:export-xdpi="424.64001"
        inkscape:export-ydpi="424.64001" />
     <g
@@ -717,6 +717,134 @@
          inkscape:export-filename="etherial_cross.png"
          inkscape:export-xdpi="96"
          inkscape:export-ydpi="96" />
+    </g>
+    <path
+       style="fill:none;stroke:#483e37;stroke-width:4.99999;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.998078;paint-order:stroke markers fill"
+       d="m -68.924391,507.96073 13.155694,-17.1962 11.725725,15.44365"
+       id="path28" />
+    <g
+       id="g32"
+       inkscape:label="rune_up"
+       transform="translate(-0.46049)"
+       inkscape:export-filename="up_rune.png"
+       inkscape:export-xdpi="424.64001"
+       inkscape:export-ydpi="424.64001">
+      <path
+         sodipodi:type="star"
+         style="fill:#535d6c;stroke:#373e48;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="path29"
+         inkscape:flatsided="true"
+         sodipodi:sides="5"
+         sodipodi:cx="78.464394"
+         sodipodi:cy="38.587795"
+         sodipodi:r1="3.8144045"
+         sodipodi:r2="1.6745236"
+         sodipodi:arg1="0.77313058"
+         sodipodi:arg2="1.4014491"
+         inkscape:rounded="0.5"
+         inkscape:randomized="0.1"
+         d="m 81.182269,41.609923 c -1.401125,1.67884 -2.608345,1.266999 -4.48249,0.225956 -1.874146,-1.041043 -2.038496,-1.468174 -1.637121,-3.737777 0.401374,-2.269603 0.248355,-2.770954 2.487383,-3.066295 2.239028,-0.295341 3.822754,-0.06792 4.57816,1.945158 0.755407,2.01308 0.455194,2.954117 -0.945932,4.632958 z"
+         transform="translate(-2.2879466,-0.49416321)" />
+      <path
+         style="fill:none;stroke:#5fbcd3;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         d="m 76.437623,40.09142 v -3.96816 l -1.315839,1.315839"
+         id="path31"
+         sodipodi:nodetypes="ccc" />
+      <path
+         d="M 77.753462,38.274684 76.437623,36.961561"
+         style="fill:none;stroke:#5fbcd3;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="path1-3"
+         sodipodi:nodetypes="cc" />
+    </g>
+    <g
+       id="g32-1"
+       inkscape:label="rune_down"
+       transform="translate(10.333001)"
+       inkscape:export-filename="down_rune.png"
+       inkscape:export-xdpi="424.64001"
+       inkscape:export-ydpi="424.64001">
+      <path
+         sodipodi:type="star"
+         style="fill:#535d6c;stroke:#373e48;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="path29-2"
+         inkscape:flatsided="true"
+         sodipodi:sides="5"
+         sodipodi:cx="78.464394"
+         sodipodi:cy="38.587795"
+         sodipodi:r1="3.8144045"
+         sodipodi:r2="1.6745236"
+         sodipodi:arg1="0.77313058"
+         sodipodi:arg2="1.4014491"
+         inkscape:rounded="0.5"
+         inkscape:randomized="0.1"
+         d="m 81.182269,41.609923 c -1.401125,1.67884 -2.608345,1.266999 -4.48249,0.225956 -1.874146,-1.041043 -2.038496,-1.468174 -1.637121,-3.737777 0.401374,-2.269603 0.248355,-2.770954 2.487383,-3.066295 2.239028,-0.295341 3.822754,-0.06792 4.57816,1.945158 0.755407,2.01308 0.455194,2.954117 -0.945932,4.632958 z"
+         transform="rotate(-22.303228,76.308518,44.39053)" />
+      <path
+         style="fill:none;stroke:#e04477;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.99807799;paint-order:normal"
+         d="m 76.426889,36.106657 v 4.218401 l -1.18866,-1.18866 1.18866,-1.188659 1.170786,1.197596 -1.135036,1.16185"
+         id="path32"
+         sodipodi:nodetypes="cccccc" />
+    </g>
+    <g
+       id="g32-1-6"
+       inkscape:label="rune_left"
+       transform="translate(21.126492,-0.1244079)"
+       inkscape:export-filename="left_rune.png"
+       inkscape:export-xdpi="424.64001"
+       inkscape:export-ydpi="424.64001">
+      <path
+         sodipodi:type="star"
+         style="fill:#535d6c;stroke:#373e48;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="path29-2-2"
+         inkscape:flatsided="true"
+         sodipodi:sides="5"
+         sodipodi:cx="78.464394"
+         sodipodi:cy="38.587795"
+         sodipodi:r1="3.8144045"
+         sodipodi:r2="1.6745236"
+         sodipodi:arg1="0.77313058"
+         sodipodi:arg2="1.4014491"
+         inkscape:rounded="0.5"
+         inkscape:randomized="0.1"
+         d="m 81.182269,41.609923 c -1.401125,1.67884 -2.608345,1.266999 -4.48249,0.225956 -1.874146,-1.041043 -2.038496,-1.468174 -1.637121,-3.737777 0.401374,-2.269603 0.248355,-2.770954 2.487383,-3.066295 2.239028,-0.295341 3.822754,-0.06792 4.57816,1.945158 0.755407,2.01308 0.455194,2.954117 -0.945932,4.632958 z"
+         transform="rotate(24.052454,78.721742,33.217442)" />
+      <path
+         style="fill:none;stroke:#ffd42a;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         d="m 78.113193,37.232041 -3.789413,1.09035 3.789413,0.714984"
+         id="path33" />
+      <path
+         style="fill:none;stroke:#ffd42a;stroke-width:0.456179;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         d="m 75.314005,37.305352 v 1.911496"
+         id="path34" />
+    </g>
+    <g
+       id="g32-1-6-2"
+       inkscape:label="rune_right"
+       transform="translate(31.919983,-0.32994409)"
+       inkscape:export-filename="right_rune.png"
+       inkscape:export-xdpi="424.64001"
+       inkscape:export-ydpi="424.64001">
+      <path
+         sodipodi:type="star"
+         style="fill:#535d6c;stroke:#373e48;stroke-width:0.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         id="path29-2-2-0"
+         inkscape:flatsided="true"
+         sodipodi:sides="5"
+         sodipodi:cx="78.464394"
+         sodipodi:cy="38.587795"
+         sodipodi:r1="3.8144045"
+         sodipodi:r2="1.6745236"
+         sodipodi:arg1="0.77313058"
+         sodipodi:arg2="1.4014491"
+         inkscape:rounded="0.5"
+         inkscape:randomized="0.1"
+         d="m 81.182269,41.609923 c -1.401125,1.67884 -2.608345,1.266999 -4.48249,0.225956 -1.874146,-1.041043 -2.038496,-1.468174 -1.637121,-3.737777 0.401374,-2.269603 0.248355,-2.770954 2.487383,-3.066295 2.239028,-0.295341 3.822754,-0.06792 4.57816,1.945158 0.755407,2.01308 0.455194,2.954117 -0.945932,4.632958 z"
+         transform="rotate(-121.60955,77.423863,39.226546)" />
+      <path
+         style="fill:none;stroke:#abc837;stroke-width:0.600001;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:0.998078;paint-order:normal"
+         d="m 74.041797,38.121267 h 4.46165 l -1.377677,1.377678"
+         id="path35"
+         sodipodi:nodetypes="ccc" />
     </g>
   </g>
   <g
