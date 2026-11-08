@@ -51,7 +51,7 @@ def main():
                         break
 
                 # w
-                battler_obj.start_battle(round_num)
+            battler_obj.start_battle(round_num)
             
         UI.player = []
 
