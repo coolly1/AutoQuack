@@ -1,8 +1,12 @@
 from enum import Enum
+
+
 def load_unit(file):
     data = []
     with open(file, "r") as file:
         content = file.read()
+        content = file.read()
+
         data = content.strip().split(",")
 
     unit = UNIT(base_health=int(data[0]), base_attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), base_special_attack=int(data[3]), special_attack_growth=int(data[4]),
