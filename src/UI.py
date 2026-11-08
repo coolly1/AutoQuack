@@ -1,6 +1,7 @@
 import os
 import pygame
 import pygame_gui
+from pygame_gui.core import ObjectID
 from Units import COLOR, UNIT, TARGET, SPECIAL
 from dataclasses import dataclass
 
@@ -12,13 +13,20 @@ class ui():
         #COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png"
     }
     
-    colorImages = {}
-    flippedColorImages = {}
+    flippedColorImages2 = {}
+    colorImages3 = {}
+    flippedColorImages3 = {}
+    
     
     def __init__(self):
         pygame.init()
         
         pygame.display.set_caption('Quick Start')
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        
+        self.THEME_PATH = os.path.join(BASE_DIR, "../data/UI_Theme.json")
+        self.THEME_PATH = os.path.abspath(self.THEME_PATH)
+        
         self.window_surface = pygame.display.set_mode((800, 600))
     
         self.background = pygame.Surface((800, 600))
@@ -26,13 +34,15 @@ class ui():
         
         self.is_running = True
         
-        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
         
         for color, path in self.colorPaths.items():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
-            self.colorImages[color] = pygame.image.load(full_path).convert_alpha()
-            self.flippedColorImages[color] = pygame.transform.flip(self.colorImages[color], True, False)
+            self.colorImages3[color] = pygame.image.load(full_path).convert_alpha()
+            self.flippedColorImages2[color] = pygame.transform.flip(self.colorImages3[color], True, False)
+            self.flippedColorImages2[color] = pygame.transform.scale(self.flippedColorImages2[color], (self.flippedColorImages2[color].get_width() / 2, self.flippedColorImages2[color].get_height() / 2))
+            self.colorImages3[color] = pygame.transform.scale(self.colorImages3[color], (self.colorImages3[color].get_width() / 3, self.colorImages3[color].get_height() / 3))
+            self.flippedColorImages3[color] = pygame.transform.flip(self.colorImages3[color], True, False)
         
     
     def main_menu(self):
@@ -60,7 +70,7 @@ class ui():
             pygame.display.update()
     
     def show_training(self, player):
-        manager = pygame_gui.UIManager((800, 600))
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
                                                      text='Train Health',
                                                      manager=manager)
@@ -84,9 +94,10 @@ class ui():
         duck_buttons = []
         
         for i in range(4):
-            duck_buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 100), 400), (80, 80)),
+            duck_buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((45 + (i * 150), 395), (110, 110)),
                                                      text='Duck ' + str(i + 1),
-                                                     manager=manager))
+                                                     manager=manager,
+                                                     object_id=ObjectID(class_id="@transparent_btn")))
         
         unit = -1
         
@@ -117,7 +128,8 @@ class ui():
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
-            self.draw_duck(player[unit], 50, 400, 1/3, True)
+            for i in range(4):
+                self.draw_duck2(player[i], 50 + 150 * i, 400)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -161,14 +173,19 @@ class ui():
 
             pygame.display.update()
 
-    def draw_duck(self, unit:UNIT, x:int, y:int, scale:float, flipped:bool = False):
-        if flipped:
-            self.window_surface.blit(self.colorImages[unit.color], (x, y), pygame.Rect(0, 0, self.colorImages[unit.color].get_width() * scale, self.colorImages[unit.color].get_height() * scale))
+
+    def draw_duck2(self, unit:UNIT, x:int, y:int):
+        self.window_surface.blit(self.flippedColorImages2[unit.color], (x, y))
+
+    def draw_duck(self, unit:UNIT, x:int, y:int, flipped:bool = False):
+        if not flipped:
+            self.window_surface.blit(self.colorImages3[unit.color], (x, y))
         else:
-            self.window_surface.blit(self.flippedColorImages[unit.color], (x, y), pygame.Rect(0, 0, self.flippedColorImages[unit.color].get_width() * scale, self.flippedColorImages[unit.color].get_height() * scale))
+            self.window_surface.blit(self.flippedColorImages3[unit.color], (x, y))
         pass
     
     def show_battle(self, active_unit, affected_units, is_special):
+        
         pass
 
 
