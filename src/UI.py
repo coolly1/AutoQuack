@@ -1,5 +1,6 @@
 import pygame
 import pygame_gui
+from Units import UNIT, TARGET, SPECIAL
 
 class ui():
     clock = pygame.time.Clock()
@@ -120,3 +121,10 @@ class ui():
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
+    
+    def draw_duck(self, unit:UNIT, x:int, y:int):
+        pass
+    
+    def show_battle(self, active_unit, affected_units, is_special):
+        pass
+    
