@@ -11,7 +11,9 @@ def main():
     
     while True:
         UI.main_menu()
-        
+
+        UI.instruction_menu()
+
         classes = [load_unit("../data/cleric.csv"), 
                 load_unit("../data/rogue.csv"),
                 load_unit("../data/mage.csv"), 
@@ -51,7 +53,7 @@ def main():
                         break
 
                 # w
-                battler_obj.start_battle(round_num)
+            battler_obj.start_battle(round_num)
             
         UI.player = []
 
