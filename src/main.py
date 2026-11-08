@@ -8,54 +8,56 @@ def main():
     
     # pick ducks screens
     UI = ui()
-    UI.main_menu()
     
-    classes = [load_unit("../data/cleric.csv"), 
-              load_unit("../data/rogue.csv"),
-              load_unit("../data/mage.csv"), 
-              load_unit("../data/knight.csv")]
-    
-    player = UI.select_units(classes)
-    
-    #init_player
-    # player = [load_unit("../data/cleric.csv"), 
-    #           load_unit("../data/rogue.csv"),
-    #           load_unit("../data/mage.csv"), 
-    #           load_unit("../data/knight.csv")]
+    while True:
+        UI.main_menu()
+        
+        classes = [load_unit("../data/cleric.csv"), 
+                load_unit("../data/rogue.csv"),
+                load_unit("../data/mage.csv"), 
+                load_unit("../data/knight.csv")]
+        
+        player = UI.select_units(classes)
+        
+        #init_player
+        # player = [load_unit("../data/cleric.csv"), 
+        #           load_unit("../data/rogue.csv"),
+        #           load_unit("../data/mage.csv"), 
+        #           load_unit("../data/knight.csv")]
 
-    # show start screen
-    
+        # show start screen
+        
 
 
-    battler_obj = battler(player, UI)
+        battler_obj = battler(player, UI)
 
-    for round_num in range(MAX_ROUNDS):
-        # reset unit damage and charge
+        for round_num in range(MAX_ROUNDS):
+            # reset unit damage and charge
 
-        # show training, training_state = 0 exit
-        training_count = 3
-        for train_number in range(training_count):
-            training_state, unit = UI.show_training()
-            match training_state:
-                case 1:
-                    score = UI.minigame_4(unit)
-                    player[unit].train(TRAINABLE_STAT.HP, score)
-                case 2:
-                    score = UI.minigame_1(unit)
-                    player[unit].train(TRAINABLE_STAT.ATK, score)
-                case 3:
-                    score = UI.minigame_3(unit)
-                    player[unit].train(TRAINABLE_STAT.SPD, score)
-                case 4:
-                    score = UI.minigame_2(unit)
-                    player[unit].train(TRAINABLE_STAT.SPK, score)
-                case 0:
-                    break
+            # show training, training_state = 0 exit
+            training_count = 3
+            for train_number in range(training_count):
+                training_state, unit = UI.show_training()
+                match training_state:
+                    case 1:
+                        score = UI.minigame_4(unit)
+                        player[unit].train(TRAINABLE_STAT.HP, score)
+                    case 2:
+                        score = UI.minigame_1(unit)
+                        player[unit].train(TRAINABLE_STAT.ATK, score)
+                    case 3:
+                        score = UI.minigame_3(unit)
+                        player[unit].train(TRAINABLE_STAT.SPD, score)
+                    case 4:
+                        score = UI.minigame_2(unit)
+                        player[unit].train(TRAINABLE_STAT.SPK, score)
+                    case 0:
+                        break
 
-        # w
-        battler_obj.start_battle(round_num)
-
-    # show training, a
+            # w
+            battler_obj.start_battle(round_num)
+        
+        UI.player = []
 
 if __name__ == '__main__':
     main()
