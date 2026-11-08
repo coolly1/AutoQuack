@@ -7,11 +7,10 @@ def load_unit(file):
     for row in reader:
         data.append(row)
 
-    unit = UNIT(max_health=int(data[0]), attack_dmg=int(data[1]), special_attack=int(data[2]), speed=int(data[3]), max_charge=int(data[4]),
-                normal_target= TARGET(data[5]), special_action= SPECIAL(data[6]), path = data[7], base_speed = int(data[8]),
-                base_ability_power=int(data[9]), attack_dmg_growth=int(data[10]), special_attack_growth=int(data[11]))
+    unit = UNIT(max_health=int(data[0]), attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), special_attack=int(data[3]), special_attack_growth=int(data[4]),
+                speed = TARGET(data[5]), max_charge= SPECIAL(data[6]), path = str(data[7]), normal_target = TARGET(data[8]),
+                special_action=SPECIAL(data[9]))
     return unit
-
 
 class TARGET(Enum):
     FRONT = 1
@@ -55,7 +54,9 @@ def abyssal_splash(caster):
 
 class UNIT:
     max_health: int
+    base_health: int
     current_health: int
+    #health growth
 
     attack_dmg: int
     base_attack_dmg: int
@@ -64,9 +65,11 @@ class UNIT:
     special_attack: int
     base_special_attack: int
     special_attack_growth: int
+    special_action: SPECIAL
 
     speed: int
     base_speed: int
+    #speed growth
 
     max_charge: int
     current_charge: int = 0
@@ -74,14 +77,8 @@ class UNIT:
     path: str
     normal_target: TARGET
 
-    # for future
-    #base_speed
-    #base_ability_power
 
-
-    def __init__(self, max_health, attack_dmg, special_attack, speed, max_charge, normal_target: TARGET,
-                 special_action: SPECIAL, path, base_speed, base_ability_power, attack_dmg_growth,
-                 special_attack_growth):
+    def __init__(self, max_health, attack_dmg, attack_dmg_growth, special_attack, special_attack_growth, speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 
         self.base_max_health = max_health
         self.base_attack_dmg = attack_dmg
