@@ -755,7 +755,7 @@ class ui():
     @staticmethod
     def _slot_pos(idx: int) -> Vector2:
         """Top-left of the duck in slot idx (0-3 player, 4-7 enemy)."""
-        return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
+        return Vector2(50 + 75 * idx, 450) if idx < 4 else Vector2(450 + 75 * (idx - 4), 450)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
