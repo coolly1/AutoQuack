@@ -1,7 +1,8 @@
 MAX_TURNS = 100
 
-from Units import unit
-from Units import Target
+from Units import UNIT
+from Units import TARGET
+from UI import ui
 import heapq
 import random
 
@@ -12,22 +13,26 @@ enemy_lists = []
 class battler():
     # this is used to prevent ties
     turn_id: int
-    turn_order_pq: list[(float, int, int, unit)]
-    player_team: list[unit]
-    units: list[unit]
+    turn_order_pq: list[(float, int, int, UNIT)]
+    player_team: list[UNIT]
+    units: list[UNIT]
+    GUI: ui
 
-    def __init__(self, player_team: list):
+    def __init__(self, player_team: list, gui: ui):
         self.player_team = player_team
+        self.gui = gui
         random.seed(SEED_RAND)
 
-    def start_battle(self, round_idx) -> bool:
-        """
+    def get_enemy_list(self, round_idx: int) -> list[UNIT]:
+        return []
 
+    def start_battle(self, round_idx: int) -> bool:
+        """
         :return: bool if player won or loss
         """
 
         # get the enemies
-        enemy_team: list[unit] = []
+        enemy_team: list[UNIT] = self.get_enemy_list(round_idx)
 
         self.turn_id = 0
         self.turn_order_pq =[]
@@ -45,11 +50,11 @@ class battler():
         for turn_order in range(MAX_TURNS):
             (prev_priority, turn_id, active_unit_idx) = heapq.heappop(self.turn_order_pq)
 
-            # if unit is dead then continue
+            # if UNIT is dead then continue
             if(self.units[active_unit_idx].is_dead()):
                 continue
 
-            (damage, target, is_self) = self.units[active_unit_idx].execute_turn()
+            (damage, target, is_self, is_special) = self.units[active_unit_idx].execute_turn()
 
             # what team we are targeting
             target_team: int
@@ -59,40 +64,58 @@ class battler():
             else:
                 target_team = active_unit_idx >= 4
 
+            # find effected units
+            affected_units: list[UNIT] = []
+
             match target:
-                case Target.FRONT:
-                    teams[target_team][fronts[target_team]].apply_damage(damage)
-                case Target.BACK:
-                    teams[target_team][backs[target_team]].apply_damage(damage)
-                case Target.SELF:
-                    teams[target_team][active_unit_idx % 4].apply_damage(damage)
-                case Target.RANDOM:
+                case TARGET.FRONT:
+                    affected_units.append(teams[target_team][fronts[target_team]])
+                case TARGET.BACK:
+                    affected_units.append(teams[target_team][backs[target_team]])
+                case TARGET.SELF:
+                    affected_units.append(teams[target_team][active_unit_idx % 4])
+                case TARGET.RANDOM:
                     while(True):
                         target = random.randint(0, 3)
                         if(teams[target_team][target].is_dead()):
                             continue
 
-                        teams[target_team][target].apply_damage(damage)
+                        affected_units.append(teams[target_team][target])
                         break
-                case Target.TEAM:
-                    for unit_idx
-                case Target.ALL:
+                case TARGET.TEAM:
+                    for unit_idx in range(4):
+                        affected_units.append(teams[target_team][unit_idx])
+                case TARGET.ALL:
+                    for team_idx in range(2):
+                        for unit_idx in range(4):
+                            affected_units.append(teams[team_idx][unit_idx])
+                case _:
+                    print("BAD")
 
-                    teams[target_team][1].apply_damage(damage)
+            # apply effects
+            for unit in affected_units:
+                unit.apply_damage(damage)
 
+            # check if alive and adjust pointers
             for team_idx in range(2):
-                while(self.player_team[fronts[team_idx]].is_dead()):
+                while(teams[team_idx][fronts[team_idx]].is_dead()):
                     fronts[team_idx] += 1
                     if(fronts[team_idx] > backs[team_idx]):
                         return team_idx == 1
 
-                while(self.player_team[backs[team_idx]].is_dead()):
+                while(teams[team_idx][backs[team_idx]].is_dead()):
                     backs[team_idx] -= 1
 
-            self.schedule_unit(active_unit, prev_priority=prev_priority)
+            # schedule the unit again
+            self.schedule_unit(active_unit_idx, prev_priority=prev_priority)
+
+            # call GUI
+            self.gui.show_battle(self.units[active_unit_idx], affected_units, is_special)
+
+        return False
 
     def schedule_unit(self, unit_idx, prev_priority):
 
-        unit = self.units
-        heapq.heappush(self.turn_order_pq, (prev_priority + (1 / schedule_unit.speed), self.turn_id, unit_idx, schedule_unit))
+        unit = self.units[unit_idx]
+        heapq.heappush(self.turn_order_pq, (prev_priority + (1 / unit.speed), self.turn_id, unit_idx, unit))
         self.turn_id += 1
