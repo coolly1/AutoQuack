@@ -110,14 +110,15 @@ class ui():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == train_button_1:
-                        return 1, unit
-                    if event.ui_element == train_button_2:
-                        return 2, unit
-                    if event.ui_element == train_button_3:
-                        return 3, unit
-                    if event.ui_element == train_button_4:
-                        return 4, unit
+                    if unit > 0:
+                        if event.ui_element == train_button_1:
+                            return 1, unit
+                        if event.ui_element == train_button_2:
+                            return 2, unit
+                        if event.ui_element == train_button_3:
+                            return 3, unit
+                        if event.ui_element == train_button_4:
+                            return 4, unit
                     if event.ui_element == fight_button:
                         return 0, -1
                     for i in range(4):
@@ -204,7 +205,9 @@ class ui():
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         
-        while self.is_running:
+        anim_finished = False
+        
+        while self.is_running and not anim_finished:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
