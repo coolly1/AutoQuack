@@ -1,2 +1,2 @@
 #base_hp, base_atk, atk_growth, base_spk, spk_growth, base_speed, max_charge, path, normal_target, special_action
-100,8,4,4,2,50,4,AutoQuack/sprites/ducks/skins/basic.png,1,Bill Beatdown
+100,8,4,4,2,50,4,AutoQuack/sprites/ducks/units/knight,1,Bill Beatdown
