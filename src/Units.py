@@ -135,7 +135,7 @@ class UNIT:
     def execute_turn(self) -> tuple:
 
         """
-        Comment for tyler-poo
+        Comment for tyler
         return (damage, target, is_self, is_special)
         """
 
@@ -143,8 +143,8 @@ class UNIT:
             self.current_charge = 0
 
             match self.special_action:
-                case SPECIAL.HEALING_QUACK:
-                    return healing_quack(self)
+                case SPECIAL.SOOTHING_QUACK:
+                    return soothing_quack(self)
                 case SPECIAL.FINAL_QUACK:
                     return final_quack(self)
                 case SPECIAL.BILL_BEATDOWN:
