@@ -1,5 +1,5 @@
 from UI import ui
-from Units import load_unit
+from Units import load_unit, TRAINABLE_STAT
 from battler import battler
 
 MAX_ROUNDS = 3
@@ -25,20 +25,22 @@ def main():
         # reset unit damage and charge
 
         # show training, training_state = 0 exit
-        training_state = -1
         training_count = 3
-        while(training_state != 0):
-
-
+        for train_number in range(training_count):
             training_state, unit = UI.show_training()
-            training_count -= 1
             match training_state:
-                case 1:
-                    UI.minigame_1(unit)
                 case 2:
-                    UI.minigame_2(unit)
+                    score = UI.minigame_1(unit)
+                    player[unit].train(TRAINABLE_STAT.ATK, score)
+                case 4:
+                    score = UI.minigame_2(unit)
+                    player[unit].train(TRAINABLE_STAT.SPK, score)
                 case 3:
-                    UI.minigame_3(unit)
+                    score = UI.minigame_3(unit)
+                    player[unit].train(TRAINABLE_STAT.ATK, score)
+                case 0:
+                    break
+
         # w
         battler_obj.start_battle(round_num)
 

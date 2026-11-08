@@ -177,7 +177,7 @@ class ui():
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
-                
+
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -267,7 +267,7 @@ class ui():
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
-
+        return score
     def minigame_2(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
@@ -440,6 +440,7 @@ class ui():
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
+        return score
 
     def draw_duck2(self, unit:UNIT, x:int, y:int):
         """Training-scene duck (half size, faces right) with its hat and weapon at rest."""
