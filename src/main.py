@@ -33,7 +33,7 @@ def main():
                     UI.minigame_1(unit)
                 
         # w
-        # battler_obj.start_battle(round_num)
+        battler_obj.start_battle(round_num)
 
     # show training, a
 

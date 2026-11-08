@@ -1,4 +1,4 @@
-MAX_TURNS = 100
+MAX_TURNS = 200
 
 from Units import UNIT, TARGET, load_unit
 from UI import ui
@@ -36,10 +36,10 @@ class battler():
 
         self.turn_id = 0
         self.turn_order_pq =[]
-        self.units = self.player_team + enemy_lists
+        self.units = self.player_team + enemy_team
 
-        fronts = [0, 0]
-        backs = [3, 3]
+        fronts = [3, 0]
+        backs = [0, 3]
 
         teams = [self.player_team, enemy_team]
 
@@ -47,6 +47,7 @@ class battler():
         for unit_idx in range(len(self.units)):
             self.schedule_unit(unit_idx, 0.0)
             self.units[unit_idx].reset_for_battle()
+
         for turn_order in range(MAX_TURNS):
             prev_priority, turn_id, active_unit_idx = heapq.heappop(self.turn_order_pq)
 
@@ -70,7 +71,7 @@ class battler():
             match target:
                 case TARGET.FRONT:
                     affected_units.append(teams[target_team][fronts[target_team]])
-                    print(f"Duck Idx {active_unit_idx} dealt to {fronts[target_team]} took damage, health was {teams[target_team][fronts[target_team]].current_health}")
+                    print(f"Duck Idx {active_unit_idx} dealt to {fronts[target_team] + target_team * 4} idx, health was {teams[target_team][fronts[target_team]].current_health}")
                 case TARGET.BACK:
                     affected_units.append(teams[target_team][backs[target_team]])
                 case TARGET.SELF:
@@ -97,21 +98,34 @@ class battler():
             for unit in affected_units:
                 unit.apply_damage(damage)
 
-            # check if alive and adjust pointers
-            for team_idx in range(2):
-                while(teams[team_idx][fronts[team_idx]].is_dead()):
-                    fronts[team_idx] += 1
-                    if(fronts[team_idx] > backs[team_idx]):
-                        return team_idx == 1
+            # check if player alive and adjust pointers
+            team_idx = 0
+            while(teams[team_idx][fronts[team_idx]].is_dead()):
+                fronts[team_idx] -= 1
+                if(fronts[team_idx] < backs[team_idx]):
+                    print(team_idx == 1)
+                    return team_idx == 1
 
-                while(teams[team_idx][backs[team_idx]].is_dead()):
-                    backs[team_idx] -= 1
+            while(teams[team_idx][backs[team_idx]].is_dead()):
+                backs[team_idx] += 1
+
+            team_idx = 1
+            # check if enemy alive and adjust pointers
+            while(teams[team_idx][fronts[team_idx]].is_dead()):
+                fronts[team_idx] += 1
+                if(fronts[team_idx] > backs[team_idx]):
+                    print(team_idx == 1)
+                    return team_idx == 1
+
+            while(teams[team_idx][backs[team_idx]].is_dead()):
+                backs[team_idx] -= 1
+
 
             # schedule the unit again
             self.schedule_unit(active_unit_idx, prev_priority=prev_priority)
 
             # call GUI
-            self.gui.show_battle(self.units[active_unit_idx], affected_units, is_special)
+            self.gui.show_battle(active_unit_idx, affected_units, is_special)
 
         return False
 
