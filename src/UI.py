@@ -1,6 +1,6 @@
 import math
 import os
-from zoneinfo import available_timezones
+import copy
 
 import pygame
 import pygame_gui
@@ -35,10 +35,8 @@ class ui():
     
     player: list[UNIT]
     
-    def __init__(self, player: list[UNIT]):
+    def __init__(self):
         pygame.init()
-        
-        self.player = player
         
         pygame.display.set_caption('Quick Start')
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -51,6 +49,9 @@ class ui():
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
         self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
+        self.select_stats = []
+        for i in range(4):
+            self.select_stats.append(stat_panel(bbox=(15 + 200 * i, 20, 170, 200), screen=self.window_surface))
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
         self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
@@ -596,6 +597,92 @@ class ui():
             anim_finished = progress >= 1.0
 
         self._alive_units = [u for u in units if not u.is_dead()]
+    
+    def select_units(self, classes):
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
+        self.player = []
+        player_indexes = [0, 1, 2, 3]
+        for i in range(4):
+            self.player.append(copy.copy(classes[i]))
+        
+        duck_buttons = []
+        
+        for i in range(4):
+            buttons = []
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 470), (40, 25)),
+                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 470), (40, 25)),
+                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 500), (40, 25)),
+                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 500), (40, 25)),
+                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            duck_buttons.append(buttons)  
+        
+        start = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+                                                     text='Start Game',
+                                                        manager=manager)
+        
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+                
+        arrow_path = os.path.join(BASE_DIR, "../sprites/hunger_meter_player_arrow.png")
+        arrow_path = os.path.abspath(arrow_path)
+        
+        arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.5)
+        arrow_flipped = pygame.transform.flip(arrow, True, False)
+        
+        while self.is_running:
+            time_delta = self.clock.tick(60)/1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == start:
+                        return self.player
+                    for i in range(4):
+                        if event.ui_element == duck_buttons[i][0]:
+                            color = self.player[i].color
+                            player_indexes[i] = (player_indexes[i] - 1 + len(classes)) % len(classes)
+                            self.player[i] = copy.copy(classes[player_indexes[i]])
+                            self.player[i].color = color
+                        elif event.ui_element == duck_buttons[i][1]:
+                            color = self.player[i].color
+                            player_indexes[i] = (player_indexes[i] + 1) % len(classes)
+                            self.player[i] = copy.copy(classes[player_indexes[i]])
+                            self.player[i].color = color
+                        elif event.ui_element == duck_buttons[i][2]:
+                            color_int = self.player[i].color.value
+                            color_int += 1
+                            if color_int > COLOR.BROWN.value:
+                                color_int = COLOR.YELLOW.value
+                            self.player[i].color = COLOR(color_int)
+                        elif event.ui_element == duck_buttons[i][3]:
+                            color_int = self.player[i].color.value
+                            color_int -= 1
+                            if color_int < COLOR.YELLOW.value:
+                                color_int = COLOR.BROWN.value
+                            self.player[i].color = COLOR(color_int)
+
+                manager.process_events(event)
+            
+            # stat panel shows the selected duck (drawn below, after the background)
+
+            manager.update(time_delta)
+
+            self.window_surface.blit(self.background, (0, 0))
+            for i in range(4):
+                self.draw_duck2(self.player[i], 50 + 200 * i, 350)
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 470))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 470))
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 500))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 500))
+                self.select_stats[i].draw(self.player[i])
+            manager.draw_ui(self.window_surface)
+            
+            pygame.display.update()
+        
+        
+        
     
     
 
