@@ -5,7 +5,7 @@ import copy
 import pygame
 import pygame_gui
 from pygame_gui.core import ObjectID
-from Units import COLOR, UNIT, TARGET, SPECIAL
+from Units import COLOR, UNIT, TARGET, SPECIAL, TRAINABLE_STAT
 from dataclasses import dataclass
 from pygame.math import Vector2
 from accessories import (get_accessories, animation_for, special_animation_for, AttackContext, Pose,
@@ -52,7 +52,7 @@ class ui():
         self.select_stats = []
         for i in range(4):
             self.select_stats.append(stat_panel(bbox=(15 + 200 * i, 20, 170, 200), screen=self.window_surface))
-        self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
+        self.rewards = rewards_panel(bbox=(250,200,300,200), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
         self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
 
@@ -213,6 +213,8 @@ class ui():
         is_minigame_finished = False
         return_button = None
         score = 0.0
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60)/1000.0
@@ -273,8 +275,11 @@ class ui():
             elif(not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].base_attack_dmg
+                self.player[unit].train(TRAINABLE_STAT.ATK, score)
+                new = self.player[unit].base_attack_dmg
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -315,6 +320,9 @@ class ui():
         sequence_length = 3
         target_sequence = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
         current_step = 0
+
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60) / 1000.0
@@ -390,8 +398,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].special_attack
+                self.player[unit].train(TRAINABLE_STAT.SPK, score)
+                new = self.player[unit].special_attack
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -419,6 +430,8 @@ class ui():
         elapsed_time = 0.0
         is_minigame_finished = False
         return_button = None
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60)/1000.0
@@ -488,8 +501,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].base_speed
+                self.player[unit].train(TRAINABLE_STAT.SPD, score)
+                new = self.player[unit].base_speed
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -541,6 +557,8 @@ class ui():
         return_button = None
         direction_change_timer = 0.0
         target_next_change_time = 1.0
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60) / 1000.0
@@ -605,8 +623,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].max_health
+                self.player[unit].train(TRAINABLE_STAT.HP, score)
+                new = self.player[unit].max_health
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -878,26 +899,36 @@ class rewards_panel():
     color: tuple[int, int, int]
     screen: pygame.Surface
 
-    def draw(self, score):
+    def draw(self, score, old, new):
 
         # Draw panel
-        border_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
-        pygame.draw.rect(self.screen, self.color, border_rect)
+        border_rect1 = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.color, border_rect1)
+
+        # calc text
+        font1 = pygame.font.Font(None, 50)
+        text_surface1 = font1.render(f"Score: {score:.1f}", True, (0,0,0))
+
+        # get the text rectangle
+        text_rect1 = text_surface1.get_rect()
+        text_rect1.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2 - 40)
+
+        self.screen.blit(text_surface1, text_rect1)
 
         # calc text
         font = pygame.font.Font(None, 50)
-        text_surface = font.render(f"{score:.1f}", True, (0,0,0))
+        text_surface = font.render(f"Stat {old:.0f} -> {new:.0f} ", True, (0,0,0))
 
         # get the text rectangle
         text_rect = text_surface.get_rect()
-        text_rect.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2)
+        text_rect.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2  + 20)
 
         # draw the text
         self.screen.blit(text_surface, text_rect)
 
     def draw_button(self, manager):
         return pygame_gui.elements.UIButton(relative_rect=pygame.Rect((self.bbox[0] + self.bbox[2]/2 - 50,
-                                                                       self.bbox[1] + self.bbox[3]/2 + 100),
+                                                                       self.bbox[1] + self.bbox[3]/2 + 100/2),
                                                                       (100, 50)),
                                                     text='Return!',
                                                     manager=manager)
