@@ -51,7 +51,7 @@ class SPECIAL(Enum):
 def soothing_quack(caster):
     """Heals All teammates based on special attack power."""
     heal_amount = caster.special_attack * 2
-    return (round(heal_amount), TARGET.TEAM, True, True)
+    return (round(heal_amount) * -1, TARGET.TEAM, True, True)
 
 def final_quack(caster):
     """Deals large Single Target damage to the BACK of enemy team"""
@@ -169,8 +169,9 @@ class UNIT:
         return self.current_health <= 0
 
     def apply_damage(self, amount):
+        if self.is_dead():
+            return
         self.current_health = max(0, self.current_health - amount)
-        pass
 
     def __str__(self):
         return str("current health: ") + str(self.current_health) + str(", current charge: ") + str(self.current_charge)

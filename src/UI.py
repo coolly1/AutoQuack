@@ -117,15 +117,14 @@ class ui():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if unit >= 0:
-                        if event.ui_element == train_button_1:
-                            return 1, unit
-                        if event.ui_element == train_button_2:
-                            return 2, unit
-                        if event.ui_element == train_button_3:
-                            return 3, unit
-                        if event.ui_element == train_button_4:
-                            return 4, unit
+                    if event.ui_element == train_button_1:
+                        return 1, unit
+                    if event.ui_element == train_button_2:
+                        return 2, unit
+                    if event.ui_element == train_button_3:
+                        return 3, unit
+                    if event.ui_element == train_button_4:
+                        return 4, unit
                     if event.ui_element == fight_button:
                         return 0, -1
                     for i in range(4):
@@ -151,6 +150,22 @@ class ui():
                     else:
                         duck_buttons[i].change_object_id(ObjectID(class_id="@transparent_btn"))
                 highlighted_unit = unit
+                
+            if unit >= 0:
+                train_button_1.enable()
+                train_button_2.enable()
+                train_button_3.enable()
+                train_button_4.enable()
+            else:
+                train_button_1.disable()
+                train_button_2.disable()
+                train_button_3.disable()
+                train_button_4.disable()
+            
+            if unit >= 0:
+                pass
+            
+            
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
