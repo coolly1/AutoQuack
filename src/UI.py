@@ -2,6 +2,7 @@ import os
 import pygame
 import pygame_gui
 from Units import COLOR, UNIT, TARGET, SPECIAL
+from dataclasses import dataclass
 
 class ui():
     clock = pygame.time.Clock()
@@ -122,28 +123,69 @@ class ui():
                 
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
-        
+
+        time_bar = progress_bar(bbox=(100, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
+        completion_bar = progress_bar(bbox=(600, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
+
+        flaps_needed = 4
+        is_up_last_pressed = False
+        cur_flaps = 0
+        # start_time =
+
         while self.is_running:
-            time_delta = self.clock.tick(60)/1000.0
+            time_second = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     pass
-    
                 manager.process_events(event)
-    
-            manager.update(time_delta)
-    
+
+            keys = pygame.key.get_just_pressed()
+
+            if keys[pygame.K_UP] or keys[pygame.K_w]:
+                is_up_last_pressed = True
+
+            if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                if(is_up_last_pressed):
+                    is_up_last_pressed = False
+                    cur_flaps += 1
+
+
+
+            manager.update(time_second)
+
             self.window_surface.blit(self.background, (0, 0))
             manager.draw_ui(self.window_surface)
-            
+
             pygame.display.update()
-    
+
     def draw_duck(self, unit:UNIT, x:int, y:int):
         self.window_surface.blit(self.colorImages[unit.color], (x, y))
         pass
     
     def show_battle(self, active_unit, affected_units, is_special):
         pass
-    
+
+
+@dataclass
+class progress_bar():
+    bbox: tuple[int, int, int, int]
+    inner_offset: int
+    inner_color: tuple[int, int, int]
+    outer_color: tuple[int, int, int]
+    screen: pygame.display
+
+    def draw(self, percent):
+
+        current_bar_width = int((self.bbox[2] - 2*self.inner_offset) * percent)
+
+        # Draw outer border
+        border_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.outer_color, border_rect, 2)
+
+        # Draw active time bar
+        if current_bar_width > 0:
+            inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[2] - 2*self.inner_offset))
+            pygame.draw.rect(self.screen, self.inner_color, inner_rect)
+
