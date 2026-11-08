@@ -4,6 +4,9 @@ import pygame_gui
 from pygame_gui.core import ObjectID
 from Units import COLOR, UNIT, TARGET, SPECIAL
 from dataclasses import dataclass
+from pygame.math import Vector2
+from accessories import (get_accessories, animation_for, AttackContext, Pose,
+                         DUCK_DISPLAY_SIZE)
 
 class ui():
     clock = pygame.time.Clock()
@@ -110,14 +113,15 @@ class ui():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
-                    if event.ui_element == train_button_1:
-                        return 1, unit
-                    if event.ui_element == train_button_2:
-                        return 2, unit
-                    if event.ui_element == train_button_3:
-                        return 3, unit
-                    if event.ui_element == train_button_4:
-                        return 4, unit
+                    if unit > 0:
+                        if event.ui_element == train_button_1:
+                            return 1, unit
+                        if event.ui_element == train_button_2:
+                            return 2, unit
+                        if event.ui_element == train_button_3:
+                            return 3, unit
+                        if event.ui_element == train_button_4:
+                            return 4, unit
                     if event.ui_element == fight_button:
                         return 0, -1
                     for i in range(4):
@@ -195,35 +199,83 @@ class ui():
     def draw_duck2(self, unit:UNIT, x:int, y:int):
         self.window_surface.blit(self.flippedColorImages2[unit.color], (x, y))
 
-    def draw_duck(self, unit:UNIT, x:int, y:int, flipped:bool = False):
+    def draw_duck(self, unit:UNIT, x:int, y:int, flipped:bool = False, pose: Pose = None):
+        """flipped=True means the duck faces right (player side).
+        pose=None draws the accessories at rest; pass a Pose to animate the weapon."""
         if not flipped:
             self.window_surface.blit(self.colorImages3[unit.color], (x, y))
         else:
             self.window_surface.blit(self.flippedColorImages3[unit.color], (x, y))
-    
+
+        acc = get_accessories(unit.path)
+        if acc is None:
+            return
+        mirrored = not flipped  # accessories are authored right-facing
+        if pose is None or pose.weapon_visible:
+            delta = pose.angle if pose else 0
+            acc.draw_weapon(self.window_surface, (x, y), mirrored, acc.rest_angle + delta)
+        acc.draw_hat(self.window_surface, (x, y), mirrored)
+
+    @staticmethod
+    def _slot_pos(idx: int) -> Vector2:
+        """Top-left of the duck in slot idx (0-3 player, 4-7 enemy)."""
+        return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
+
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
+        # TODO: special attacks will get their own animations; skip them for now
+        if is_special:
+            return
+
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
-        
-        while self.is_running:
+
+        units = list(self.player) + list(enemy_team)
+        facing = 1 if active_unit < 4 else -1
+        active = units[active_unit]
+
+        acc = get_accessories(active.path)
+        anim = animation_for(acc)
+        duration = anim.duration
+        ctx = None
+        if acc is not None:
+            targets = [self._slot_pos(i) + DUCK_DISPLAY_SIZE / 2
+                       for i, u in enumerate(units)
+                       if i != active_unit and any(u is a for a in affected_units)]
+            ctx = AttackContext(acc, anim, self._slot_pos(active_unit), facing, targets)
+
+        elapsed = 0.0
+        anim_finished = False
+
+        while self.is_running and not anim_finished:
             time_delta = self.clock.tick(60)/1000.0
+            elapsed += time_delta
+            progress = min(elapsed / duration, 1.0)
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     pass
-    
+
                 manager.process_events(event)
-    
+
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
-            for i in range(4):
-                self.draw_duck(self.player[i], 50 + 75 * i, 400, True)
-            for i in range(4):
-                self.draw_duck(enemy_team[i], 450 + 75 * i, 400, False)
+            pose = anim.pose(progress)
+            # draw the attacker last so it (and its lunge) is on top
+            for i in [i for i in range(8) if i != active_unit] + [active_unit]:
+                pos = self._slot_pos(i)
+                if i == active_unit:
+                    self.draw_duck(units[i], pos.x + pose.dx * facing, pos.y, i < 4, pose)
+                else:
+                    if not units[i].is_dead():
+                        self.draw_duck(units[i], pos.x, pos.y, i < 4)
+            if ctx is not None:
+                anim.draw_effects(self.window_surface, progress, ctx)
             manager.draw_ui(self.window_surface)
-            
+
             pygame.display.update()
+            anim_finished = progress >= 1.0
 
 
 @dataclass
