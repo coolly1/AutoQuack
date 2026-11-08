@@ -27,10 +27,10 @@ def main():
 
 
             training_state, unit = UI.show_training()
-            if training_state >= 1 and training_state <= 4:
-                # train unit
-                print("Training unit " + str(unit) + " with training state: " + str(training_state))
-                pass
+            match training_state:
+                case 1:
+                    UI.minigame_1(unit)
+                
         pass
         # w
 

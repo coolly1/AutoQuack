@@ -12,19 +12,20 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
+        
+        self.is_running = True
     
     def main_menu(self):
         manager = pygame_gui.UIManager((800, 600))
         start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
                                                      text='Start Game',
                                                      manager=manager)
-        is_running = True
         
-        while is_running:
+        while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_running = False
+                    self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == start_button:
                         return;
@@ -63,18 +64,17 @@ class ui():
         duck_buttons = []
         
         for i in range(4):
-            duck_buttons += pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 100), 400), (80, 80)),
+            duck_buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 100), 400), (80, 80)),
                                                      text='Duck ' + str(i + 1),
-                                                     manager=manager)
+                                                     manager=manager))
         
-        is_running = True
         unit = -1
         
-        while is_running:
+        while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_running = False
+                    self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     if event.ui_element == train_button_1:
                         return 1, unit
@@ -101,15 +101,14 @@ class ui():
             
             pygame.display.update()
                 
-    def minigame_1(self):
+    def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
-        is_running = True
         
-        while is_running:
+        while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    is_running = False
+                    self.is_running = False
                 if event.type == pygame_gui.UI_BUTTON_PRESSED:
                     pass
     
