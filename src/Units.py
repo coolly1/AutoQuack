@@ -4,7 +4,7 @@ from enum import Enum
 def load_unit(file):
     data = []
     with open(file, "r") as file:
-        content = file.read()
+        content = file.readline()
         content = file.read()
 
         data = content.strip().split(",")
@@ -21,6 +21,11 @@ class TARGET(Enum):
     ALL = 4
     SELF = 5
     TEAM = 6
+    
+class COLOR(Enum):
+    YELLOW = 1
+    MALLARD = 2
+    COMS = 3
 
 
 class TRAINABLE_STAT(Enum):
@@ -84,7 +89,7 @@ class UNIT:
 
     path: str
     normal_target: TARGET
-
+    color: COLOR = COLOR.YELLOW
 
     def __init__(self, base_health, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 

@@ -1,9 +1,17 @@
+import os
 import pygame
 import pygame_gui
-from Units import UNIT, TARGET, SPECIAL
+from Units import COLOR, UNIT, TARGET, SPECIAL
 
 class ui():
     clock = pygame.time.Clock()
+    colorPaths = {
+        COLOR.YELLOW: "..\\sprites\\ducks\\skins\\yellow_duck.png",
+        #COLOR.MALLARD: "..\\sprites\\ducks\\skins\\mallard_duck.png",
+        #COLOR.COMS: "..\\sprites\\ducks\\skins\\coms_duck.png"
+    }
+    
+    colorImages = {}
     
     def __init__(self):
         pygame.init()
@@ -15,6 +23,15 @@ class ui():
         self.background.fill(pygame.Color('#000000'))
         
         self.is_running = True
+        
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        
+        for color, path in self.colorPaths.items():
+            full_path = os.path.join(BASE_DIR, path)
+            full_path = os.path.abspath(full_path)
+            self.colorImages[color] = pygame.image.load(full_path).convert_alpha()
+        
+        
     
     def main_menu(self):
         manager = pygame_gui.UIManager((800, 600))
@@ -96,8 +113,9 @@ class ui():
                 manager.process_events(event)
     
             manager.update(time_delta)
-    
+
             self.window_surface.blit(self.background, (0, 0))
+            self.draw_duck(UNIT(0, 0, 0, 0, 0, 0, 0, 0, "", TARGET.SELF, SPECIAL.NONE), 50, 400)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -123,6 +141,7 @@ class ui():
             pygame.display.update()
     
     def draw_duck(self, unit:UNIT, x:int, y:int):
+        self.window_surface.blit(self.colorImages[unit.color], (x, y))
         pass
     
     def show_battle(self, active_unit, affected_units, is_special):
