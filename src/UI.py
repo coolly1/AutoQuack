@@ -263,15 +263,13 @@ class ui():
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
             if stat_unit is not None:
                 self.stats.draw(stat_unit)
-            manager.draw_ui(self.window_surface)
-
+            
             self.window_surface.blit(health_image, (50, 50))
             self.window_surface.blit(speed_image, (50, 150))
             self.window_surface.blit(strength_image, (300, 50))
             self.window_surface.blit(ability_image, (300, 150))
             self.window_surface.blit(fight_image, (600, 275))
-
-
+            
             pygame.display.update()
 
     def minigame_1(self, unit: int):
@@ -804,7 +802,7 @@ class ui():
     @staticmethod
     def _slot_pos(idx: int) -> Vector2:
         """Top-left of the duck in slot idx (0-3 player, 4-7 enemy)."""
-        return Vector2(50 + 75 * idx, 400) if idx < 4 else Vector2(450 + 75 * (idx - 4), 400)
+        return Vector2(50 + 75 * idx, 450) if idx < 4 else Vector2(450 + 75 * (idx - 4), 450)
 
     def show_battle(self, active_unit, affected_units, is_special, enemy_team):
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -894,7 +892,7 @@ class ui():
     def select_units(self, classes):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        start_menu = os.path.join(BASE_DIR, "../sprites/party_select.png")
         bg_image = pygame.image.load(start_menu).convert()
         bg_image = pygame.transform.scale(bg_image, (800, 600))
         self.player = []
@@ -906,14 +904,14 @@ class ui():
         
         for i in range(4):
             buttons = []
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 470), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 470), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 500), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
-            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 500), (40, 25)),
-                                                     text = '', manager=manager, object_id=ObjectID(class_id="@transparent_btn")))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 520), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 520), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50 + (i * 200), 550), (40, 25)),
+                                                     text = '', manager=manager))
+            buttons.append(pygame_gui.elements.UIButton(relative_rect=pygame.Rect((110 + (i * 200), 550), (40, 25)),
+                                                     text = '', manager=manager))
             duck_buttons.append(buttons)  
         
         start_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
@@ -932,7 +930,7 @@ class ui():
         
         arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.5)
         arrow_flipped = pygame.transform.flip(arrow, True, False)
-        
+
         while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
@@ -973,17 +971,62 @@ class ui():
 
             self.window_surface.blit(bg_image, (0, 0))
             for i in range(4):
-                self.draw_duck2(self.player[i], 50 + 200 * i, 350)
-                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 470))
-                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 470))
-                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 500))
-                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 500))
+                self.draw_duck2(self.player[i], 50 + 200 * i, 400)
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 520))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 520))
+                self.window_surface.blit(arrow_flipped, (50 + 200 * i, 550))
+                self.window_surface.blit(arrow, (50 + 200 * i + 100 - arrow.get_width(), 550))
                 self.select_stats[i].draw(self.player[i])
-            manager.draw_ui(self.window_surface)
+            # manager.draw_ui(self.window_surface)
 
             self.window_surface.blit(start_image, (350, 275))
 
             pygame.display.update()
+    
+    def show_end_screen(self, win):
+        manager = pygame_gui.UIManager((800, 600))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        background = os.path.join(BASE_DIR, "../sprites/battle.png")
+        background = os.path.abspath(background)
+        bg_image = pygame.image.load(background).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+        
+        return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
+        return_button_path = os.path.abspath(return_button_path)
+        return_image = pygame.image.load(return_button_path).convert()
+        return_image = pygame.transform.scale(return_image, (100, 50))
+        
+        banner_path = os.path.join(BASE_DIR, "../sprites/you_win_banner.png" if win else "../sprites/you_lose_banner.png")
+        banner_path = os.path.abspath(banner_path)
+        banner_image = pygame.image.load(banner_path).convert()
+        banner_image = pygame.transform.scale_by(banner_image, 0.333)
+
+        return_button = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((350, 275), (100, 50)),
+                                                     text='Return!',
+                                                     manager=manager)
+
+        while self.is_running:
+            time_delta = self.clock.tick(60)/1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if event.ui_element == return_button:
+                        return
+                manager.process_events(event)
+
+            manager.update(time_delta)
+
+            self.window_surface.blit(bg_image, (0, 0))
+            
+            self.window_surface.blit(return_image, (350, 275))
+            self.window_surface.blit(banner_image, (400 - banner_image.get_width() // 2, 100))
+            
+            for i in range(4):
+                self.draw_duck2(self.player[i], 50 + 200 * i, 400, flipped=i >= 2)
+                        
+            pygame.display.update()
+        
         
         
         
