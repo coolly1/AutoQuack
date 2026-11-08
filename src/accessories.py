@@ -395,7 +395,7 @@ class ClericSpecialAnim(Animation):
     targets_include_self = True
 
     CROSS_FILE, CIRCLE_FILE, PARTICLE_FILE = "etherial_cross.png", "healing_circle.png", "healing_particle.png"
-    CROSS_SCALE, CIRCLE_SCALE, PARTICLE_SCALE = 2.2, 1.7, 1.3
+    CROSS_SCALE, CIRCLE_SCALE, PARTICLE_SCALE = 1.5, 1.15, 1.0   # on-screen scale of the png (circle ~ duck width)
     CROSS_HEIGHT_ABOVE_DUCKS = 120     # px from the ducks' centers up to the cross center
     PARTICLES_PER_DUCK = 5
 
@@ -418,10 +418,10 @@ class ClericSpecialAnim(Animation):
             center = self._party_center(ctx) - Vector2(0, self.CROSS_HEIGHT_ABOVE_DUCKS)
             pulse = 1.0 + 0.08 * math.sin(p * 40)
             cross = ctx.acc.effect_image(self.CROSS_FILE, self.CROSS_SCALE)
-            glow_r = int(70 * pulse)
+            glow_r = int(55 * pulse)
             glow = pygame.Surface((glow_r * 2, glow_r * 2), pygame.SRCALPHA)
-            for k in range(6, 0, -1):                       # concentric soft rings
-                pygame.draw.circle(glow, (255, 240, 150, int(a * 22)), (glow_r, glow_r), int(glow_r * k / 6))
+            for k in range(12, 0, -1):                      # many faint concentric rings = soft edge
+                pygame.draw.circle(glow, (255, 240, 150, int(a * 11)), (glow_r, glow_r), int(glow_r * k / 12))
             surf.blit(glow, glow.get_rect(center=center))
             _blit_faded(surf, cross, center, a, zoom=pulse)
 

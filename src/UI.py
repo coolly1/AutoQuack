@@ -109,7 +109,8 @@ class ui():
                                                      object_id=ObjectID(class_id="@transparent_btn")))
         
         unit = -1
-        
+        highlighted_unit = -1
+
         while self.is_running:
             time_delta = self.clock.tick(60)/1000.0
             for event in pygame.event.get():
@@ -142,11 +143,14 @@ class ui():
     
                 manager.process_events(event)
 
-            if(unit > 0):
-                duck_buttons[unit].object_ids = [ObjectID(class_id="@transparent_border_btn", object_id="#selected")]
-            else:
+            # outline the selected duck; only re-theme the buttons when the selection actually changes
+            if unit != highlighted_unit:
                 for i in range(4):
-                    duck_buttons[i].object_ids = [ObjectID(class_id="@transparent_btn")]
+                    if i == unit:
+                        duck_buttons[i].change_object_id(ObjectID(class_id="@transparent_border_btn", object_id="#selected"))
+                    else:
+                        duck_buttons[i].change_object_id(ObjectID(class_id="@transparent_btn"))
+                highlighted_unit = unit
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
