@@ -152,12 +152,14 @@ class ui():
                     is_up_last_pressed = False
                     cur_flaps += 1
 
-
-
             manager.update(time_second)
 
             self.window_surface.blit(self.background, (0, 0))
             manager.draw_ui(self.window_surface)
+
+            # start drawing
+            time_bar.draw(1.0)
+            completion_bar.draw(1.0)
 
             pygame.display.update()
 
@@ -190,6 +192,6 @@ class progress_bar():
 
         # Draw active time bar
         if current_bar_width > 0:
-            inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[2] - 2*self.inner_offset))
+            inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[3] - 2*self.inner_offset))
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
 
