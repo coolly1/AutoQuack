@@ -5,17 +5,17 @@ from battler import battler
 MAX_ROUNDS = 2
 
 def main():
-
-
-    # show start screen
-    UI = ui()
-    UI.main_menu()
-
+    
     # pick ducks screens
 
     #init_player
     player = [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
-              load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
+                  load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
+
+    # show start screen
+    UI = ui(player)
+    UI.main_menu()
+
 
     battler_obj = battler(player, UI)
 
@@ -27,7 +27,7 @@ def main():
         while(training_state != 0):
 
 
-            training_state, unit = UI.show_training(player)
+            training_state, unit = UI.show_training()
             match training_state:
                 case 1:
                     UI.minigame_1(unit)

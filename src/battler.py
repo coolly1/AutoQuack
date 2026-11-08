@@ -23,8 +23,8 @@ class battler():
         random.seed(SEED_RAND)
 
     def get_enemy_list(self, round_idx: int) -> list[UNIT]:
-        return [load_unit("AutoQuack/data/mega_peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
-              load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
+        return [load_unit("../data/mega_peasant.csv"), load_unit("../data/peasant.csv"),
+              load_unit("../data/peasant.csv"), load_unit("../data/peasant.csv")]
 
     def start_battle(self, round_idx: int) -> bool:
         """

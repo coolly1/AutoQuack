@@ -17,9 +17,12 @@ class ui():
     colorImages3 = {}
     flippedColorImages3 = {}
     
+    player: list[UNIT]
     
-    def __init__(self):
+    def __init__(self, player: list[UNIT]):
         pygame.init()
+        
+        self.player = player
         
         pygame.display.set_caption('Quick Start')
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -69,7 +72,7 @@ class ui():
             
             pygame.display.update()
     
-    def show_training(self, player):
+    def show_training(self):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
                                                      text='Train Health',
@@ -129,7 +132,7 @@ class ui():
 
             self.window_surface.blit(self.background, (0, 0))
             for i in range(4):
-                self.draw_duck2(player[i], 50 + 150 * i, 400)
+                self.draw_duck2(self.player[i], 50 + 150 * i, 400)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -184,11 +187,30 @@ class ui():
             self.window_surface.blit(self.colorImages3[unit.color], (x, y))
         else:
             self.window_surface.blit(self.flippedColorImages3[unit.color], (x, y))
-        pass
     
-    def show_battle(self, active_unit, affected_units, is_special):
+    def show_battle(self, active_unit, affected_units, is_special, enemy_team):
+        manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
         
-        pass
+        while self.is_running:
+            time_delta = self.clock.tick(60)/1000.0
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    pass
+    
+                manager.process_events(event)
+    
+            manager.update(time_delta)
+
+            self.window_surface.blit(self.background, (0, 0))
+            for i in range(4):
+                self.draw_duck(self.player[i], 50 + 75 * i, 400, True)
+            for i in range(4):
+                self.draw_duck(enemy_team[i], 450 + 75 * i, 400, False)
+            manager.draw_ui(self.window_surface)
+            
+            pygame.display.update()
 
 
 @dataclass
