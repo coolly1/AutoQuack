@@ -107,6 +107,10 @@ class ui():
     
     def show_training(self):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        bg_image = pygame.image.load(start_menu).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
                                                      text='Train Health',
                                                      manager=manager)
@@ -194,7 +198,8 @@ class ui():
 
             manager.update(time_delta)
 
-            self.window_surface.blit(self.background, (0, 0))
+            self.window_surface.blit(bg_image, (0, 0))
+
             for i in range(4):
                 self.draw_duck2(self.player[i], 50 + 150 * i, 400)
             if stat_unit is not None:
@@ -790,6 +795,10 @@ class ui():
     
     def select_units(self, classes):
         manager = pygame_gui.UIManager((800, 600), theme_path=self.THEME_PATH)
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        start_menu = os.path.join(BASE_DIR, "../sprites/training_menu.png")
+        bg_image = pygame.image.load(start_menu).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
         self.player = []
         player_indexes = [0, 1, 2, 3]
         for i in range(4):
@@ -820,10 +829,10 @@ class ui():
         
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 
-        arrow_path = os.path.join(BASE_DIR, "../sprites/hunger_meter_player_arrow.png")
+        arrow_path = os.path.join(BASE_DIR, "../sprites/party_switcher_arrow.png")
         arrow_path = os.path.abspath(arrow_path)
         
-        arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.04)
+        arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.5)
         arrow_flipped = pygame.transform.flip(arrow, True, False)
         
         while self.is_running:
@@ -864,7 +873,7 @@ class ui():
 
             manager.update(time_delta)
 
-            self.window_surface.blit(self.background, (0, 0))
+            self.window_surface.blit(bg_image, (0, 0))
             for i in range(4):
                 self.draw_duck2(self.player[i], 50 + 200 * i, 350)
                 self.window_surface.blit(arrow_flipped, (50 + 200 * i, 470))
