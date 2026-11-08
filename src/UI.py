@@ -444,8 +444,8 @@ class ui():
         )
 
         elapsed_time = 0.0
-        MEMORIZE_TIME = 5.0 #Time to memorize the sequence
-        PLAY_TIME = 10.0 #Time to input sequence
+        MEMORIZE_TIME = 3.0 #Time to memorize the sequence
+        PLAY_TIME = 6.0 #Time to input sequence
         total_time_limit = MEMORIZE_TIME + PLAY_TIME
 
         is_minigame_finished = False
@@ -656,17 +656,27 @@ class ui():
 
     def minigame_4(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
-        self.background.fill(pygame.Color('#1e3d59'))
-
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        hill_path = os.path.join(BASE_DIR, "../sprites/kitchen_background.png")
+        bg_image = pygame.image.load(hill_path).convert()
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+
 
         return_button_path = os.path.join(BASE_DIR, "../sprites/return_button.png")
         return_image = pygame.image.load(return_button_path).convert()
         return_image = pygame.transform.scale(return_image, (100, 50))
 
+        table_button_path = os.path.join(BASE_DIR, "../sprites/table.png")
+        table_image = pygame.image.load(table_button_path).convert_alpha()
+        table_image = pygame.transform.scale(table_image, (300, 200))
+
+        grapes = os.path.join(BASE_DIR, "../sprites/grape_bundle.png")
+        grapes_image = pygame.image.load(grapes)
+        grapes_image = pygame.transform.scale(grapes_image, (100, 50)).convert_alpha()
+
         #Fishing Bar dims
-        bar_x = 450
-        bar_y = 150
+        bar_x = 100
+        bar_y = 100
         bar_w = 40
         bar_h = 350
 
@@ -697,11 +707,11 @@ class ui():
         hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=bar_y + 100, outer_width=bar_w, arrow_height=target_height)
 
 
-        duck_x = 100
-        duck_y = 450
+        duck_x = 300
+        duck_y = 400
         score = 0.0
         elapsed_time = 0.0
-        timeout = 20.0
+        timeout = 10.0
         is_minigame_finished = False
         return_button = None
         direction_change_timer = 0.0
@@ -721,7 +731,11 @@ class ui():
                 manager.process_events(event)
 
             manager.update(time_second)
-            self.window_surface.blit(self.background, (0, 0))
+            self.window_surface.blit(bg_image, (0, 0))
+            self.window_surface.blit(table_image, (500, 300))
+            self.window_surface.blit(grapes_image, (610, 270))
+            self.window_surface.blit(grapes_image, (560, 290))
+            self.window_surface.blit(grapes_image, (630, 280))
 
             delta_y = 0.0
             if elapsed_time < timeout:
