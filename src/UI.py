@@ -116,7 +116,7 @@ class ui():
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
-            self.draw_duck(UNIT(0, 0, 0, 0, 0, 0, 0, 0, "", TARGET.SELF, SPECIAL.NONE), 50, 400)
+            self.draw_duck(UNIT(0, 0, 0, 0, 0, 0, 0, 0, "", TARGET.SELF, SPECIAL.ABYSSAL_SPLASH), 50, 400)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -188,6 +188,8 @@ class progress_bar():
         if current_bar_width > 0:
             inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[2] - 2*self.inner_offset))
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
+
+
 
 
 @dataclass

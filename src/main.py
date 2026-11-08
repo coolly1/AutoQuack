@@ -27,7 +27,7 @@ def main():
         while(training_state != 0):
 
 
-            training_state, unit = UI.show_training(player)
+            training_state, unit = UI.show_training()
             match training_state:
                 case 1:
                     UI.minigame_1(unit)
