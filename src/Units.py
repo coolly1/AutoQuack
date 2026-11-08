@@ -7,8 +7,8 @@ def load_unit(file):
     for row in reader:
         data.append(row)
 
-    unit = UNIT(max_health=int(data[0]), attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), special_attack=int(data[3]), special_attack_growth=int(data[4]),
-                speed = TARGET(data[5]), max_charge= SPECIAL(data[6]), path = str(data[7]), normal_target = TARGET(data[8]),
+    unit = UNIT(base_health=int(data[0]), base_attack_dmg=int(data[1]), attack_dmg_growth=int(data[2]), base_special_attack=int(data[3]), special_attack_growth=int(data[4]),
+                base_speed = TARGET(data[5]), max_charge= SPECIAL(data[6]), path = str(data[7]), normal_target = TARGET(data[8]),
                 special_action=SPECIAL(data[9]))
     return unit
 
@@ -78,12 +78,12 @@ class UNIT:
     normal_target: TARGET
 
 
-    def __init__(self, max_health, attack_dmg, attack_dmg_growth, special_attack, special_attack_growth, speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
+    def __init__(self, base_health, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 
-        self.base_max_health = max_health
-        self.base_attack_dmg = attack_dmg
-        self.base_special_attack = special_attack
-        self.base_speed = speed
+        self.base_max_health = self.max_health
+        self.base_attack_dmg = self.attack_dmg
+        self.base_special_attack = self.special_attack
+        self.base_speed = self.speed
 
         self.attack_dmg_growth = attack_dmg_growth
         self.special_attack_growth = special_attack_growth
