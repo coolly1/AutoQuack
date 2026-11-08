@@ -5,7 +5,7 @@ import copy
 import pygame
 import pygame_gui
 from pygame_gui.core import ObjectID
-from Units import COLOR, UNIT, TARGET, SPECIAL
+from Units import COLOR, UNIT, TARGET, SPECIAL, TRAINABLE_STAT
 from dataclasses import dataclass
 from pygame.math import Vector2
 from accessories import (get_accessories, animation_for, special_animation_for, AttackContext, Pose,
@@ -48,11 +48,11 @@ class ui():
     
         self.background = pygame.Surface((800, 600))
         self.background.fill(pygame.Color('#000000'))
-        self.stats = stat_panel(bbox=(450, 50, 300, 175), screen=self.window_surface)
+        self.stats = stat_panel(bbox=(450, 50, 300, 200), screen=self.window_surface)
         self.select_stats = []
         for i in range(4):
             self.select_stats.append(stat_panel(bbox=(15 + 200 * i, 20, 170, 200), screen=self.window_surface))
-        self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
+        self.rewards = rewards_panel(bbox=(250,200,300,200), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
         self._alive_units = []   # units alive when the last battle animation ended (see show_battle)
 
@@ -213,6 +213,8 @@ class ui():
         is_minigame_finished = False
         return_button = None
         score = 0.0
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60)/1000.0
@@ -273,8 +275,11 @@ class ui():
             elif(not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].base_attack_dmg
+                self.player[unit].train(TRAINABLE_STAT.ATK, score)
+                new = self.player[unit].base_attack_dmg
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -301,7 +306,7 @@ class ui():
             outer_color= (255, 255, 255),
             screen = self.window_surface,
             sprite_size= 48,
-            columns=5
+            columns=7
         )
 
         elapsed_time = 0.0
@@ -315,6 +320,9 @@ class ui():
         sequence_length = 3
         target_sequence = [DIRECTION.UP, DIRECTION.DOWN, DIRECTION.LEFT]
         current_step = 0
+
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60) / 1000.0
@@ -364,6 +372,7 @@ class ui():
                     if current_step >= len(target_sequence):
                         score += 2.0
                         elapsed_time = 0.0
+                        current_step = 0
                         target_sequence = []
                         sequence_length += 1
                         for sequence_idx in range(sequence_length):
@@ -389,8 +398,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].special_attack
+                self.player[unit].train(TRAINABLE_STAT.SPK, score)
+                new = self.player[unit].special_attack
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -418,6 +430,8 @@ class ui():
         elapsed_time = 0.0
         is_minigame_finished = False
         return_button = None
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60)/1000.0
@@ -487,8 +501,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].base_speed
+                self.player[unit].train(TRAINABLE_STAT.SPD, score)
+                new = self.player[unit].base_speed
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -528,7 +545,7 @@ class ui():
         hunger_container = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_container.png").convert_alpha(), (bar_w, bar_h))
         hunger_arrow = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_player_arrow.png").convert_alpha(), (20, target_height))
 
-        hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=50, outer_width=bar_w, arrow_height=target_height)
+        hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=bar_y + 100, outer_width=bar_w, arrow_height=target_height)
 
 
         duck_x = 100
@@ -540,6 +557,8 @@ class ui():
         return_button = None
         direction_change_timer = 0.0
         target_next_change_time = 1.0
+        old = 0.0
+        new = 0.0
 
         while self.is_running:
             time_second = self.clock.tick(60) / 1000.0
@@ -578,6 +597,13 @@ class ui():
                 # Draw panel
                 hunger_meter.draw(time_second, delta_y)
 
+                # Time bar across the top (contact time is refunded, so it refills)
+                time_left = max(0.0, min(1.0, (timeout - elapsed_time) / timeout))
+                pygame.draw.rect(self.window_surface, (40, 40, 40), pygame.Rect(0, 0, 800, 20))
+                bar_color = (80, 200, 120) if time_left > 0.5 else (240, 200, 60) if time_left > 0.25 else (220, 60, 60)
+                pygame.draw.rect(self.window_surface, bar_color, pygame.Rect(0, 0, int(800 * time_left), 20))
+                pygame.draw.rect(self.window_surface, (255, 255, 255), pygame.Rect(0, 0, 800, 20), 2)
+
                 border_rect = pygame.Rect(343, 76, 93, 93)
                 pygame.draw.rect(self.window_surface, (217, 217, 217), border_rect)
 
@@ -597,8 +623,11 @@ class ui():
             elif (not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
+                old = self.player[unit].max_health
+                self.player[unit].train(TRAINABLE_STAT.HP, score)
+                new = self.player[unit].max_health
             else:
-                self.rewards.draw(score)
+                self.rewards.draw(score, old, new)
 
             manager.draw_ui(self.window_surface)
             pygame.display.update()
@@ -693,12 +722,18 @@ class ui():
                         hpPercent = max(0.0, units[i].current_health / units[i].max_health)
                         hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
                         hpBar.draw(hpPercent)
+                        charge = max(0.0, units[i].current_charge / units[i].max_charge)
+                        chargeBar = progress_bar(bbox=(pos.x, pos.y + 90, 60, 15), inner_color=(255,255,255 - int(255 * charge)), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        chargeBar.draw(charge)
                 else:
                     if not units[i].is_dead() or i in just_died:
                         self.draw_duck(units[i], pos.x, pos.y, i < 4)
                         hpPercent = max(0.0, units[i].current_health / units[i].max_health)
                         hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
                         hpBar.draw(hpPercent)
+                        charge = max(0.0, units[i].current_charge / units[i].max_charge)
+                        chargeBar = progress_bar(bbox=(pos.x, pos.y + 90, 60, 15), inner_color=(255,255,255 - int(255 * charge)), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        chargeBar.draw(charge)
             if ctx is not None:
                 anim.draw_effects(self.window_surface, progress, ctx)
             manager.draw_ui(self.window_surface)
@@ -848,6 +883,7 @@ class stat_panel():
             ("Attack", unit.attack_dmg),
             ("Speed", unit.speed),
             ("Ability", unit.special_attack),
+            {"Charge", unit.max_charge},
         ]
         y = rect.y + 50
         for label, value in rows:
@@ -863,26 +899,36 @@ class rewards_panel():
     color: tuple[int, int, int]
     screen: pygame.Surface
 
-    def draw(self, score):
+    def draw(self, score, old, new):
 
         # Draw panel
-        border_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
-        pygame.draw.rect(self.screen, self.color, border_rect)
+        border_rect1 = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.color, border_rect1)
+
+        # calc text
+        font1 = pygame.font.Font(None, 50)
+        text_surface1 = font1.render(f"Score: {score:.1f}", True, (0,0,0))
+
+        # get the text rectangle
+        text_rect1 = text_surface1.get_rect()
+        text_rect1.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2 - 40)
+
+        self.screen.blit(text_surface1, text_rect1)
 
         # calc text
         font = pygame.font.Font(None, 50)
-        text_surface = font.render(f"{score:.1f}", True, (0,0,0))
+        text_surface = font.render(f"Stat {old:.0f} -> {new:.0f} ", True, (0,0,0))
 
         # get the text rectangle
         text_rect = text_surface.get_rect()
-        text_rect.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2)
+        text_rect.center = (self.bbox[0] + self.bbox[2]/2, self.bbox[1] + self.bbox[3]/2  + 20)
 
         # draw the text
         self.screen.blit(text_surface, text_rect)
 
     def draw_button(self, manager):
         return pygame_gui.elements.UIButton(relative_rect=pygame.Rect((self.bbox[0] + self.bbox[2]/2 - 50,
-                                                                       self.bbox[1] + self.bbox[3]/2 + 100),
+                                                                       self.bbox[1] + self.bbox[3]/2 + 100/2),
                                                                       (100, 50)),
                                                     text='Return!',
                                                     manager=manager)
@@ -975,8 +1021,9 @@ class Hunger_Meter:
     arrow_height: int
     def is_contact(self):
         # check collision
-        player_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.inner_y, self.outer_width, self.nubs_height * 2 + self.center_height)
-        target_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.target_y, 50, self.arrow_height)
+        # use the same screen coordinates the sprites are drawn at
+        player_bbox = pygame.Rect(self.outer_x + self.inner_offset, self.inner_y + self.inner_offset, self.outer_width - 2 * self.inner_offset, self.nubs_height * 2 + self.center_height)
+        target_bbox = pygame.Rect(self.outer_x, self.target_y, self.hunger_arrow_image.get_width(), self.arrow_height)
         return player_bbox.colliderect(target_bbox)
 
     def update(self, score):
@@ -987,12 +1034,15 @@ class Hunger_Meter:
         self.target_y += self.target_vel * self.target_direction * time
 
         # make sure red target zone doesn't no clip out of frame
-        if self.target_y <= self.outer_y + self.inner_offset:
-            self.target_y = self.outer_y + self.inner_offset
+        # target_y is the arrow's top edge in screen coordinates
+        min_y = self.outer_y + self.inner_offset
+        max_y = self.outer_y + self.outer_height - self.inner_offset - self.arrow_height
+        if self.target_y <= min_y:
+            self.target_y = min_y
             self.target_direction = 1  # Switch to moving down
-        elif self.target_y >= self.outer_height - self.inner_offset:
-            self.target_y = self.outer_height - self.inner_offset
-            self.target_direction = -1  # Switch to moving up        # self.y += math.floor(self.vel)
+        elif self.target_y >= max_y:
+            self.target_y = max_y
+            self.target_direction = -1  # Switch to moving up
 
         self.inner_y += delta_y
 
@@ -1016,5 +1066,5 @@ class Hunger_Meter:
         self.screen.blit(self.hunger_meter_bottom, image_rect)
 
         image_rect = self.hunger_arrow_image.get_rect()
-        image_rect.topleft = (self.outer_x, self.outer_y + self.target_y + self.inner_offset)
+        image_rect.topleft = (self.outer_x, self.target_y)
         self.screen.blit(self.hunger_arrow_image, image_rect)

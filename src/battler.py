@@ -1,6 +1,6 @@
 MAX_TURNS = 200
 
-from Units import UNIT, TARGET, load_unit
+from Units import UNIT, TARGET, load_unit, TRAINABLE_STAT
 from UI import ui
 import heapq
 import random
@@ -23,8 +23,24 @@ class battler():
         random.seed(SEED_RAND)
 
     def get_enemy_list(self, round_idx: int) -> list[UNIT]:
-        return [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
-              load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
+        average_score = 8
+        match round_idx:
+            case 0:
+                 enemy = [load_unit("../data/rogue.csv"), load_unit("../data/rogue.csv"),
+                          load_unit("../data/rogue.csv"), load_unit("../data/rogue.csv")]
+                 enemy[2].train(TRAINABLE_STAT.SPD, average_score)
+                 enemy[2].train(TRAINABLE_STAT.ATK, average_score)
+                 enemy[0].train(TRAINABLE_STAT.HP, average_score)
+                 enemy[3].train(TRAINABLE_STAT.HP, average_score)
+                 return enemy
+            case 1:
+                enemy = [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
+                         load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
+                return enemy
+            case 2:
+                enemy = [load_unit("../data/knight.csv"), load_unit("../data/rogue.csv"),
+                         load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
+                return enemy
 
     def start_battle(self, round_idx: int) -> bool:
         """
