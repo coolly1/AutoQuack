@@ -155,10 +155,16 @@ class ui():
         self.background.fill(pygame.Color('#87CEEB'))
         time_bar = progress_bar(bbox=(105, 90, 189, 34), inner_color=(255,0,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
         completion_bar = progress_bar(bbox=(505, 90, 189, 34), inner_color=(0,255,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
-        cloud_1 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud1.png").convert_alpha(), (269, 153)), screen=self.window_surface, x=69, y=200)
-        cloud_2 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=491, y=353)
-        cloud_3 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=891, y=213)
-        cloud_4 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=1100, y=323)
+        
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+                
+        cloud = os.path.join(BASE_DIR, "../sprites/cloud")
+        cloud = os.path.abspath(cloud)
+        
+        cloud_1 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "1.png").convert_alpha(), (269, 153)), screen=self.window_surface, x=69, y=200)
+        cloud_2 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=491, y=353)
+        cloud_3 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "3.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=891, y=213)
+        cloud_4 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "4.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=1100, y=323)
 
         flaps_needed = 4
         is_up_last_pressed = False
