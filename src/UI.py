@@ -1,4 +1,6 @@
 import os
+from zoneinfo import available_timezones
+
 import pygame
 import pygame_gui
 from pygame_gui.core import ObjectID
@@ -151,8 +153,12 @@ class ui():
     def minigame_1(self, unit: int):
         manager = pygame_gui.UIManager((800, 600))
         self.background.fill(pygame.Color('#87CEEB'))
-        time_bar = progress_bar(bbox=(100, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
-        completion_bar = progress_bar(bbox=(600, 180, 400, 30), inner_color=(100,100,100), inner_offset=2, outer_color=(0,0,0), screen=self.window_surface)
+        time_bar = progress_bar(bbox=(105, 90, 189, 34), inner_color=(255,0,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+        completion_bar = progress_bar(bbox=(505, 90, 189, 34), inner_color=(0,255,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+        cloud_1 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud1.png").convert_alpha(), (269, 153)), screen=self.window_surface, x=69, y=200)
+        cloud_2 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=491, y=353)
+        cloud_3 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=891, y=213)
+        cloud_4 = Clouds(image=pygame.transform.scale(pygame.image.load("AutoQuack\\sprites\\cloud2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=1100, y=323)
 
         flaps_needed = 4
         is_up_last_pressed = False
@@ -186,17 +192,124 @@ class ui():
                     if(is_up_last_pressed):
                         is_up_last_pressed = False
                         cur_flaps += 1
+                        if(cur_flaps >= flaps_needed):
+                            score += 1
+                            elapsed_time = 0
+                            cur_flaps = 0
+                            flaps_needed *= 1.2
 
                 self.window_surface.blit(self.background, (0, 0))
 
                 # start drawing
                 time_bar.draw(max(0.0, (TIMEOUT-elapsed_time)/TIMEOUT))
                 completion_bar.draw(max(0.0, (cur_flaps)/flaps_needed))
+                cloud_1.draw(score+1)
+                cloud_2.draw(score+1)
+
+                # Draw panel
+                border_rect = pygame.Rect(343, 76, 93, 93)
+                pygame.draw.rect(self.window_surface, (217,217,217), border_rect)
+
+                # calc text
+                font = pygame.font.Font(None, 50)
+                text_surface = font.render(str(score), True, (0, 0, 0))
+
+                # get the text rectangle
+                text_rect = text_surface.get_rect()
+                text_rect.center = (343 + 93/2, 76 + 93/2)
+
+                # draw the text
+                self.window_surface.blit(text_surface, text_rect)
+
+                self.draw_duck2(self.player[unit], 352, 253)
 
             elif(not is_minigame_finished):
                 return_button = self.rewards.draw_button(manager)
                 is_minigame_finished = True
             else:
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+
+    def minigame_2(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        self.background.fill(pygame.Color('#87CEEB'))
+
+        sprite_bar = SpriteGrid(
+            bbox=(150, 220, 500, 200),
+            inner_offset=12,
+            inner_color = (50, 50, 70),
+            outer_color= (255, 255, 255),
+            screen = self.window_surface,
+            sprite_size= 48,
+            columns=5
+        )
+
+        elapsed_time = 0.0
+        MEMORIZE_TIME = 5.0 #Time to memorize the sequence
+        PLAY_TIME = 10.0 #Time to input sequence
+        total_time_limit = MEMORIZE_TIME + PLAY_TIME
+
+        is_minigame_finished = False
+        return_button = None
+        score = 0.0
+
+
+        target_sequence = [0, 0, 0]
+
+        current_step = 0
+
+        while self.is_running:
+            time_second = self.clock.tick(60) / 1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+
+                if total_time_limit >= elapsed_time > MEMORIZE_TIME and not is_minigame_finished:
+                    if event.type == pygame.KEYDOWN:
+                        try:
+                            #Change keypress into index space
+                            pressed_index = available_keys.index(event.key)
+                            #Comparing index spaces
+                            if pressed_index == target_sequence[current_step]:
+                                current_step += 1
+
+                                #YOU DID IT
+                                if current_step == len(target_sequence):
+                                    score = 100
+                                    is_minigame_finished = True
+                            else:
+                                #Fail
+                                score = 0.0
+                                is_minigame_finished = True
+
+                        except ValueError:
+                            #Here to ignore keys that dont pertain to video game
+                            pass
+
+
+                manager.process_events(event)
+
+            manager.update(time_second)
+
+            time_expired = (elapsed_time > total_time_limit and not is_minigame_finished)
+
+            if time_expired:
+                score = 0.0
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+
+            elif (not is_minigame_finished):
+                pass
+
+            else:
+                if not return_button:
+                    return_button = self.rewards.draw_button(manager)
                 self.rewards.draw(score)
 
             manager.draw_ui(self.window_surface)
@@ -349,7 +462,7 @@ class SpriteGrid:
     inner_offset: int
     inner_color: tuple[int, int, int]
     outer_color: tuple[int, int, int]
-    screen: pygame.display
+    screen: pygame.surface
 
     sprite_size: int = 64
     columns: int = 6
@@ -368,3 +481,21 @@ class SpriteGrid:
 
             sprite_surface = image_dict[color_key]
             self.screen.blit(sprite_surface, (x, y))
+
+@dataclass
+class Clouds:
+    screen: pygame.display
+    image: pygame.image
+    x: int
+    y: int
+
+    def draw(self, movement):
+
+        self.x -= movement
+        if(self.x < -200):
+            self.x = 1000
+
+        image_rect = self.image.get_rect()
+        image_rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, image_rect)
+
