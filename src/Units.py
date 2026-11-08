@@ -4,7 +4,7 @@ from enum import Enum
 def load_unit(file):
     data = []
     with open(file, "r") as file:
-        content = file.read()
+        content = file.readline()
         content = file.read()
 
         data = content.strip().split(",")
