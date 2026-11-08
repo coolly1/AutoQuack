@@ -738,7 +738,7 @@ class ui():
         arrow_path = os.path.join(BASE_DIR, "../sprites/hunger_meter_player_arrow.png")
         arrow_path = os.path.abspath(arrow_path)
         
-        arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.5)
+        arrow = pygame.transform.scale_by(pygame.image.load(arrow_path).convert_alpha(), 0.04)
         arrow_flipped = pygame.transform.flip(arrow, True, False)
         
         while self.is_running:
