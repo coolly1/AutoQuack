@@ -492,6 +492,116 @@ class ui():
             manager.draw_ui(self.window_surface)
             pygame.display.update()
 
+
+    def minigame_4(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        self.background.fill(pygame.Color('#1e3d59'))
+
+        #Fishing Bar dims
+        bar_x = 450
+        bar_y = 150
+        bar_w = 40
+        bar_h = 350
+
+        #red target zone (up and down thingy)
+        target_height = 20
+        target_width = 10
+        target_y = float(bar_y + 100)
+        target_x = 10
+        target_speed = 120.0
+        target_direction = 1 #1 is down and -1 is up
+
+        # Player catch bar (controlled by keys)
+        player_bar_width = bar_w - 20
+        player_nubs = 10
+        player_bar_height = 60
+        player_bar_x = bar_x + 5
+        player_bar_y = float(bar_y + 200)
+        player_speed = 250.0  # Pixels per second
+
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        sprite_path = os.path.join(BASE_DIR, "../sprites/")
+        hunger_bottom = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_bottom.png.png").convert_alpha(), (player_bar_width, player_nubs))
+        hunger_center = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_middle.png.png").convert_alpha(), (player_bar_width, player_bar_height))
+        hunger_top = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_top.png.png").convert_alpha(), (player_bar_width, player_nubs))
+        hunger_container = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_container.png").convert_alpha(), (bar_w, bar_h))
+        hunger_arrow = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_player_arrow.png").convert_alpha(), (20, target_height))
+
+        hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=50, outer_width=bar_w, arrow_height=target_height)
+
+
+        duck_x = 100
+        duck_y = 450
+        score = 0.0
+        elapsed_time = 0.0
+        timeout = 20.0
+        is_minigame_finished = False
+        return_button = None
+        direction_change_timer = 0.0
+        target_next_change_time = 1.0
+
+        while self.is_running:
+            time_second = self.clock.tick(60) / 1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+                manager.process_events(event)
+
+            manager.update(time_second)
+            self.window_surface.blit(self.background, (0, 0))
+
+            delta_y = 0.0
+            if elapsed_time < timeout:
+                keys = pygame.key.get_pressed()
+                if keys[pygame.K_UP] or keys[pygame.K_w]:
+                    delta_y = -player_speed * time_second
+                if keys[pygame.K_DOWN] or keys[pygame.K_s]:
+                    delta_y = player_speed * time_second
+
+                direction_change_timer += time_second
+
+                if direction_change_timer >= target_next_change_time:
+                    direction_change_timer = 0.0
+                    target_next_change_time = random.uniform(0.5, 1.5) #Theoretically random times for the bar to change direction
+                    hunger_meter.update(score)
+
+                if(hunger_meter.is_contact()):
+                    elapsed_time -= time_second
+                    score += time_second
+
+
+                # Draw panel
+                hunger_meter.draw(time_second, delta_y)
+
+                border_rect = pygame.Rect(343, 76, 93, 93)
+                pygame.draw.rect(self.window_surface, (217, 217, 217), border_rect)
+
+                # calc text
+                font = pygame.font.Font(None, 50)
+                text_surface = font.render(f"{score:.2f}", True, (0, 0, 0))
+
+                # get the text rectangle
+                text_rect = text_surface.get_rect()
+                text_rect.center = (343 + 93 / 2, 76 + 93 / 2)
+
+                # draw the text
+                self.window_surface.blit(text_surface, text_rect)
+
+                self.draw_duck2(self.player[unit], duck_x, duck_y)
+
+            elif (not is_minigame_finished):
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+            else:
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+
     def draw_duck2(self, unit:UNIT, x:int, y:int, flipped:bool = False):
         """Training-scene duck (half size) with its hat and weapon at rest.
         Faces right by default; flipped=True turns it to face left."""
@@ -755,3 +865,69 @@ class Boulder:
         image_rect.topleft = (self.x, self.y)
         self.screen.blit(self.image, image_rect)
 
+@dataclass
+class Hunger_Meter:
+    outer_x: int
+    outer_y: int
+    outer_height: int
+    outer_width: int
+    inner_offset: int
+    screen: pygame.Surface
+    hunger_arrow_image: pygame.image
+    hunger_container: pygame.image
+    hunger_meter_top: pygame.image
+    hunger_meter_bottom: pygame.image
+    hunger_meter_center: pygame.image
+    target_vel: float
+    target_direction: int
+    target_y: int
+    inner_y: int
+    inner_offset: int
+    nubs_height: int
+    center_height: int
+    arrow_height: int
+    def is_contact(self):
+        # check collision
+        player_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.inner_y, self.outer_width, self.nubs_height * 2 + self.center_height)
+        target_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.target_y, 50, self.arrow_height)
+        return player_bbox.colliderect(target_bbox)
+
+    def update(self, score):
+        self.target_vel = random.uniform(0, 10.0 * score)
+        self.target_direction = (random.randint(0, 1) * 2 - 1)
+
+    def draw(self, time, delta_y):
+        self.target_y += self.target_vel * self.target_direction * time
+
+        # make sure red target zone doesn't no clip out of frame
+        if self.target_y <= self.outer_y + self.inner_offset:
+            self.target_y = self.outer_y + self.inner_offset
+            self.target_direction = 1  # Switch to moving down
+        elif self.target_y >= self.outer_height - self.inner_offset:
+            self.target_y = self.outer_height - self.inner_offset
+            self.target_direction = -1  # Switch to moving up        # self.y += math.floor(self.vel)
+
+        self.inner_y += delta_y
+
+        # clamping player bar inside of the fishing bar
+        self.inner_y = max(self.outer_y - self.inner_offset, min(self.outer_y + self.outer_height - self.nubs_height * 2 - self.center_height - self.inner_offset, self.inner_y))
+
+        image_rect = self.hunger_container.get_rect()
+        image_rect.topleft = (self.outer_x, self.outer_y)
+        self.screen.blit(self.hunger_container, image_rect)
+
+        image_rect = self.hunger_meter_top.get_rect()
+        image_rect.topleft = (self.outer_x + self.inner_offset, self.inner_y + self.inner_offset)
+        self.screen.blit(self.hunger_meter_top, image_rect)
+
+        image_rect = self.hunger_meter_center.get_rect()
+        image_rect.topleft = (self.outer_x + self.inner_offset, self.inner_y + self.inner_offset + self.nubs_height)
+        self.screen.blit(self.hunger_meter_center, image_rect)
+
+        image_rect = self.hunger_meter_bottom.get_rect()
+        image_rect.topleft = (self.outer_x + self.inner_offset, self.inner_y + self.inner_offset + self.center_height + self.nubs_height)
+        self.screen.blit(self.hunger_meter_bottom, image_rect)
+
+        image_rect = self.hunger_arrow_image.get_rect()
+        image_rect.topleft = (self.outer_x, self.outer_y + self.target_y + self.inner_offset)
+        self.screen.blit(self.hunger_arrow_image, image_rect)
