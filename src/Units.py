@@ -15,7 +15,31 @@ class TRAINABLE_STAT(Enum):
     SPK = 2
 
 class SPECIAL(Enum):
-    SPECIAL_1 = 1
+    HEALING_QUACK = "Soothing Quack"
+    FINAL_QUACK = "The Final Quack"
+    BILL_BEATDOWN = "Bill Beatdown"
+    ABYSSAL_SPLASH = "Abyssal Splash"
+
+#SPECIAL ACTION FUNCTIONS
+def healing_quack(caster):
+    """Heals FRONT teammate based on special attack power."""
+    heal_amount = caster.special_attack * 2
+    return (heal_amount, TARGET.FRONT, False, True)
+
+def final_quack(caster):
+    """Deals large Single Target damage to the BACK of enemy team"""
+    damage = caster.special_attack * 3.5
+    return (damage, TARGET.BACK, False, True)
+
+def bill_beatdown(caster):
+    """Deals single target damage to the FRONT of the enemy team"""
+    damage = caster.special_attack *1.5
+    return (damage, TARGET.FRONT, False, True)
+
+def abyssal_splash(caster):
+    """Deals medium damage to all targets on enemy team"""
+    damage = caster.special_attack * 2.5
+    return (damage, TARGET.BACK, False, True)
 
 class UNIT:
     max_health: int
@@ -39,6 +63,9 @@ class UNIT:
     normal_target: TARGET
 
     # for future
+    #base_speed
+    #base_ability_power
+
 
     def __init__(self, max_health, attack_dmg, special_attack, speed, max_charge, normal_target: TARGET,
                  special_action: SPECIAL, path, base_speed, base_ability_power, attack_dmg_growth,
@@ -61,10 +88,12 @@ class UNIT:
     def train(self, stat_num: TRAINABLE_STAT, score):
         match stat_num:
             case TRAINABLE_STAT.ATK:
-                self.attack_dmg += self.attack_dmg_growth * score
+                self.base_attack_dmg += self.attack_dmg_growth * score
 
             case TRAINABLE_STAT.SPK:
-                self.special_attack += self.special_attack_growth * score
+                self.base_special_attack += self.special_attack_growth * score
+            case _:
+                print("bad")
         self.reset_for_battle()
 
     def reset_for_battle(self):
@@ -79,7 +108,7 @@ class UNIT:
 
         """
         Comment for tyler-poo
-        return (damage, target, is_self)
+        return (damage, target, is_self, is_special)
         """
 
         if self.current_charge >= self.max_charge:
@@ -87,7 +116,7 @@ class UNIT:
             return self.special_action
         else:
             self.current_charge += 1
-            return (self.attack_dmg, self.normal_target, False)
+            return (self.attack_dmg, self.normal_target, False, False)
 
     def is_dead(self):
         return self.current_health <= 0
@@ -97,7 +126,9 @@ class UNIT:
         pass
 
 
-def zoomies(caster):
+    #def zoomies(caster):
+    #pass
+
     """Future Stats maybe
      -Defense
      -Bebuffs
@@ -106,9 +137,3 @@ def zoomies(caster):
      -Speed Training
      -Health training
      """
-
-
-unit_A = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT,
-              special_action=Type)
-unit_B = unit(max_health=1, attack_dmg=1, ability_power=1, speed=1, max_charge=1, normal_target=FRONT,
-              special_action=Type)
