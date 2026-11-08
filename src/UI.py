@@ -1,4 +1,6 @@
 import os
+from zoneinfo import available_timezones
+
 import pygame
 import pygame_gui
 from pygame_gui.core import ObjectID
@@ -191,6 +193,89 @@ class ui():
             manager.draw_ui(self.window_surface)
             pygame.display.update()
 
+    def minigame_2(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        self.background.fill(pygame.Color('#87CEEB'))
+
+        sprite_bar = SpriteGrid(
+            bbox=(150, 220, 500, 200),
+            inner_offset=12,
+            inner_color = (50, 50, 70),
+            outer_color= (255, 255, 255),
+            screen = self.window_surface,
+            sprite_size= 48,
+            columns=5
+        )
+
+        elapsed_time = 0.0
+        MEMORIZE_TIME = 5.0 #Time to memorize the sequence
+        PLAY_TIME = 10.0 #Time to input sequence
+        total_time_limit = MEMORIZE_TIME + PLAY_TIME
+
+        is_minigame_finished = False
+        return_button = None
+        score = 0.0
+
+
+        target_sequence = [0, 0, 0]
+
+        current_step = 0
+
+        while self.is_running:
+            time_second = self.clock.tick(60) / 1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+
+                if total_time_limit >= elapsed_time > MEMORIZE_TIME and not is_minigame_finished:
+                    if event.type == pygame.KEYDOWN:
+                        try:
+                            #Change keypress into index space
+                            pressed_index = available_keys.index(event.key)
+                            #Comparing index spaces
+                            if pressed_index == target_sequence[current_step]:
+                                current_step += 1
+
+                                #YOU DID IT
+                                if current_step == len(target_sequence):
+                                    score = 100
+                                    is_minigame_finished = True
+                            else:
+                                #Fail
+                                score = 0.0
+                                is_minigame_finished = True
+
+                        except ValueError:
+                            #Here to ignore keys that dont pertain to video game
+                            pass
+
+
+                manager.process_events(event)
+
+            manager.update(time_second)
+
+            time_expired = (elapsed_time > total_time_limit and not is_minigame_finished)
+
+            if time_expired:
+                score = 0.0
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+
+            elif (not is_minigame_finished):
+                pass
+
+            else:
+                if not return_button:
+                    return_button = self.rewards.draw_button(manager)
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
+
 
     def draw_duck2(self, unit:UNIT, x:int, y:int):
         self.window_surface.blit(self.flippedColorImages2[unit.color], (x, y))
@@ -286,7 +371,7 @@ class SpriteGrid:
     inner_offset: int
     inner_color: tuple[int, int, int]
     outer_color: tuple[int, int, int]
-    screen: pygame.display
+    screen: pygame.surface
 
     sprite_size: int = 64
     columns: int = 6

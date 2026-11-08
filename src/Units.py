@@ -49,7 +49,7 @@ class SPECIAL(Enum):
 def soothing_quack(caster):
     """Heals FRONT teammate based on special attack power."""
     heal_amount = caster.special_attack * 2
-    return (round(heal_amount), TARGET.FRONT, False, True)
+    return (round(heal_amount), TARGET.TEAM, False, True)
 
 def final_quack(caster):
     """Deals large Single Target damage to the BACK of enemy team"""
