@@ -1,7 +1,15 @@
 {
-    "x_hat": 10,
-    "y_hat": 10,
-    
-    "x_wep": 20,
-    "y_wep": 20
+    "weapon": {
+        "scale": 0.4,
+        "rest_angle": -75,
+        "grip": [53, 440],
+        "tip": [53, 0],
+        "mount": [125, 140]
+    },
+    "hat": {
+        "scale": 0.75,
+        "art_faces_left": true,
+        "anchor": [56, 75],
+        "mount": [112, 28]
+    }
 }
