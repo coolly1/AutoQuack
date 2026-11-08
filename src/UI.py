@@ -13,7 +13,6 @@ class ui():
     }
     
     colorImages = {}
-    flippedColorImages = {}
     
     def __init__(self):
         pygame.init()
@@ -32,7 +31,7 @@ class ui():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
             self.colorImages[color] = pygame.image.load(full_path).convert_alpha()
-            self.flippedColorImages[color] = pygame.transform.flip(self.colorImages[color], True, False)
+        
         
     
     def main_menu(self):
@@ -59,7 +58,7 @@ class ui():
             
             pygame.display.update()
     
-    def show_training(self, player):
+    def show_training(self):
         manager = pygame_gui.UIManager((800, 600))
         train_button_1 = pygame_gui.elements.UIButton(relative_rect=pygame.Rect((50, 50), (150, 75)),
                                                      text='Train Health',
@@ -117,7 +116,7 @@ class ui():
             manager.update(time_delta)
 
             self.window_surface.blit(self.background, (0, 0))
-            self.draw_duck(player[unit], 50, 400, 1/3, True)
+            self.draw_duck(UNIT(0, 0, 0, 0, 0, 0, 0, 0, "", TARGET.SELF, SPECIAL.NONE), 50, 400)
             manager.draw_ui(self.window_surface)
             
             pygame.display.update()
@@ -152,22 +151,17 @@ class ui():
                     is_up_last_pressed = False
                     cur_flaps += 1
 
+
+
             manager.update(time_second)
 
             self.window_surface.blit(self.background, (0, 0))
             manager.draw_ui(self.window_surface)
 
-            # start drawing
-            time_bar.draw(1.0)
-            completion_bar.draw(1.0)
-
             pygame.display.update()
 
-    def draw_duck(self, unit:UNIT, x:int, y:int, scale:float, flipped:bool = False):
-        if flipped:
-            self.window_surface.blit(self.colorImages[unit.color], (x, y), pygame.Rect(0, 0, self.colorImages[unit.color].get_width() * scale, self.colorImages[unit.color].get_height() * scale))
-        else:
-            self.window_surface.blit(self.flippedColorImages[unit.color], (x, y), pygame.Rect(0, 0, self.flippedColorImages[unit.color].get_width() * scale, self.flippedColorImages[unit.color].get_height() * scale))
+    def draw_duck(self, unit:UNIT, x:int, y:int):
+        self.window_surface.blit(self.colorImages[unit.color], (x, y))
         pass
     
     def show_battle(self, active_unit, affected_units, is_special):
@@ -192,6 +186,32 @@ class progress_bar():
 
         # Draw active time bar
         if current_bar_width > 0:
-            inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[3] - 2*self.inner_offset))
+            inner_rect = pygame.Rect(self.bbox[0]+self.inner_offset, self.bbox[1]+self.inner_offset, current_bar_width, (self.bbox[2] - 2*self.inner_offset))
             pygame.draw.rect(self.screen, self.inner_color, inner_rect)
 
+
+@dataclass
+class SpriteGrid:
+    bbox: tuple[int, int, int, int]
+    inner_offset: int
+    inner_color: tuple[int, int, int]
+    outer_color: tuple[int, int, int]
+    screen: pygame.display
+
+    sprite_size: int = 64
+    columns: int = 6
+
+    def draw(self, sequence_array,image_dict):
+        container_rect = pygame.Rect(self.bbox[0], self.bbox[1], self.bbox[2], self.bbox[3])
+        pygame.draw.rect(self.screen, self.inner_color, container_rect, border_radius=8)
+        pygame.draw.rect(self.screen, self.outer_color, container_rect, width=3, border_radius=8)
+
+        for index, color_key in enumerate(sequence_array):
+            row = index // self.columns
+            col = index % self.columns
+
+            x = self.bbox[0] + self.inner_offset + col * (self.sprite_size + self.inner_offset)
+            y = self.bbox[1] + self.inner_offset + row * (self.sprite_size + self.inner_offset)
+
+            sprite_surface = image_dict[color_key]
+            self.screen.blit(sprite_surface, (x, y))
