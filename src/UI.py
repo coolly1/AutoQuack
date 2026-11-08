@@ -701,12 +701,18 @@ class ui():
                         hpPercent = max(0.0, units[i].current_health / units[i].max_health)
                         hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
                         hpBar.draw(hpPercent)
+                        charge = max(0.0, units[i].current_charge / units[i].max_charge)
+                        chargeBar = progress_bar(bbox=(pos.x, pos.y + 90, 60, 15), inner_color=(255,255,255 - int(255 * charge)), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        chargeBar.draw(charge)
                 else:
                     if not units[i].is_dead() or i in just_died:
                         self.draw_duck(units[i], pos.x, pos.y, i < 4)
                         hpPercent = max(0.0, units[i].current_health / units[i].max_health)
                         hpBar = progress_bar(bbox=(pos.x, pos.y + 70, 60, 15), inner_color=(int(255 - 255 * hpPercent), int(255 * hpPercent),0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
                         hpBar.draw(hpPercent)
+                        charge = max(0.0, units[i].current_charge / units[i].max_charge)
+                        chargeBar = progress_bar(bbox=(pos.x, pos.y + 90, 60, 15), inner_color=(255,255,255 - int(255 * charge)), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
+                        chargeBar.draw(charge)
             if ctx is not None:
                 anim.draw_effects(self.window_surface, progress, ctx)
             manager.draw_ui(self.window_surface)
@@ -856,6 +862,7 @@ class stat_panel():
             ("Attack", unit.attack_dmg),
             ("Speed", unit.speed),
             ("Ability", unit.special_attack),
+            {"Charge", unit.max_charge},
         ]
         y = rect.y + 50
         for label, value in rows:

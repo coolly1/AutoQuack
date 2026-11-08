@@ -515,7 +515,122 @@ class RogueSpecialAnim(Animation):
         self._impact(surf, p, self.STAB_AT, ctx, (230, 230, 230), span=0.08)
 
 
+class KnightSpecialAnim(Animation):
+    """Leap into the air above the target, chop down with sword_slash.png trailing the blade, hop home.
+    Needs sword_slash.png in the knight folder."""
+    duration = 1.5
+
+    SLASH_FILE = "sword_slash.png"
+    SLASH_SRC = (271, 385)             # sprite size, its pivot (blade base) and the direction of its leading edge
+    SLASH_PIVOT = (47, 385)
+    SLASH_LEAD_DEG = 38                # leading edge points this many degrees clockwise of straight up
+    SLASH_SIZE = 1.05                  # slash radius relative to the sword length
+    LAND_AT = 0.6                      # the moment the sword hits
+    SWING = (0.5, 0.6)                 # sword sweeps down in this window
+    STAND_OFF = 50                     # px in front of the target the knight lands
+
+    def _dest_x(self):
+        ctx = self.ctx
+        if ctx is None or not ctx.targets:
+            return 0.0
+        return ctx.targets[0].x - ctx.facing * self.STAND_OFF - DUCK_DISPLAY_SIZE.x / 2 - ctx.duck_pos.x
+
+    def pose(self, p):
+        x = keyframes([(0, 0), (0.1, 0), (0.5, self._dest_x()), (0.76, self._dest_x()), (1, 0)], p)
+        y = keyframes([(0, 0), (0.1, 5), (0.42, -210), (0.5, -200), (0.6, 0), (0.76, 0), (0.88, -40), (1, 0)], p)
+        angle = keyframes([(0, 0), (0.1, 110), (0.5, 110), (0.6, -75), (0.76, -75), (1, 0)], p)
+        return Pose(angle=angle, offset=Vector2(x, y))
+
+    def draw_effects(self, surf, p, ctx):
+        alpha = _trapezoid(p, 0.49, 0.52, self.SWING[1], 0.72)
+        o = ctx.acc.oriented(ctx.mirrored)
+        if alpha > 0 and o.wep is not None:
+            pose = self.pose(p)
+            reach = (o.tip - o.grip).length()
+            img = ctx.acc.effect_image(self.SLASH_FILE, reach * self.SLASH_SIZE / math.hypot(224, 285))
+            if img is not None:
+                pivot = Vector2(self.SLASH_PIVOT[0] * img.get_width() / self.SLASH_SRC[0],
+                                self.SLASH_PIVOT[1] * img.get_height() / self.SLASH_SRC[1])
+                theta = ctx.acc.rest_angle + pose.angle + self.SLASH_LEAD_DEG     # CCW, right-facing frame
+                if ctx.mirrored:                                                   # art is right-facing
+                    img = pygame.transform.flip(img, True, False)
+                    pivot.x = img.get_width() - pivot.x
+                    theta = -theta
+                img = img.copy()
+                img.set_alpha(int(220 * alpha))
+                _blit_rotated(surf, img, pivot, ctx.duck_pos + pose.offset + o.hand_mount, theta)
+        self._impact(surf, p, self.LAND_AT, ctx, (255, 255, 255), span=0.1)
+
+
+class MageSpecialAnim(Animation):
+    """Abyssal Splash: the mage floats up, opens a portal in front of itself, and the geyser shoots out of it
+    as abyssal_splash.png is revealed by a crop box growing from just the ellipse to the full sprite."""
+    duration = 2.2
+
+    GEYSER_FILE = "abyssal_splash.png"
+    CAP_SRC_W = 26                     # width (source px) of the portal ellipse on the left of the sprite
+    HEIGHT = 105                       # on-screen height of the geyser
+    TILT_DEG = 5                       # geyser points this many degrees below horizontal
+    GROW_FROM, GROW_TO = 0.30, 0.54    # crop box expands over this window (progress)
+    # the geyser then holds at full length until the fade-out window starts at 0.78
+    RISE = 28                          # px the mage floats off the ground
+    PORTAL_GAP = 2                     # px between the duck and the portal
+
+    def __init__(self):
+        self._comp = {}
+
+    def pose(self, p):
+        return Pose(angle=keyframes([(0, 0), (0.2, 40), (0.85, 40), (1, 0)], p),
+                    offset=Vector2(0, keyframes([(0, 0), (0.2, -self.RISE), (0.88, -self.RISE), (1, 0)], p)))
+
+    def _geyser(self, ctx, length):
+        """Portal cap + stretched body at the right length, facing the attack direction."""
+        key = (round(length), ctx.mirrored)
+        if key not in self._comp:
+            src = ctx.acc.effect_image(self.GEYSER_FILE, 1.0)
+            s = self.HEIGHT / src.get_height()
+            cap_w = max(1, round(self.CAP_SRC_W * s))
+            cap = pygame.transform.smoothscale(src.subsurface(0, 0, self.CAP_SRC_W, src.get_height()), (cap_w, self.HEIGHT))
+            body = pygame.transform.smoothscale(
+                src.subsurface(self.CAP_SRC_W, 0, src.get_width() - self.CAP_SRC_W, src.get_height()),
+                (max(1, round(length) - cap_w), self.HEIGHT))
+            comp = pygame.Surface((cap_w + body.get_width(), self.HEIGHT), pygame.SRCALPHA)
+            comp.blit(cap, (0, 0))
+            comp.blit(body, (cap_w, 0))
+            if ctx.mirrored:
+                comp = pygame.transform.flip(comp, True, False)
+            self._comp[key] = (comp, cap_w)
+        return self._comp[key]
+
+    def draw_effects(self, surf, p, ctx):
+        fade = _trapezoid(p, 0.15, 0.3, 0.78, 0.91)
+        if fade <= 0 or not ctx.targets:
+            return
+        pose = self.pose(p)
+        center_y = ctx.duck_pos.y + DUCK_DISPLAY_SIZE.y / 2 + pose.offset.y
+        if ctx.facing > 0:
+            edge = ctx.duck_pos.x + DUCK_DISPLAY_SIZE.x + self.PORTAL_GAP        # portal's left edge
+            reach = max(t.x for t in ctx.targets) + 40 - edge
+        else:
+            edge = ctx.duck_pos.x - self.PORTAL_GAP                              # portal's right edge
+            reach = edge - (min(t.x for t in ctx.targets) - 40)
+        comp, cap_w = self._geyser(ctx, max(reach, 120))
+        grow = keyframes([(self.GROW_FROM, 0), (self.GROW_TO, 1)], p)          # crop box: ellipse -> full sprite
+        w = max(1, round(cap_w + (comp.get_width() - cap_w) * grow))
+        if ctx.facing > 0:
+            crop = comp.subsurface(0, 0, w, self.HEIGHT).copy()
+            pivot = Vector2(0, self.HEIGHT / 2)                                   # portal end, left
+        else:
+            crop = comp.subsurface(comp.get_width() - w, 0, w, self.HEIGHT).copy()
+            pivot = Vector2(w, self.HEIGHT / 2)                                   # portal end, right
+        crop.set_alpha(int(255 * min(fade * 1.5, 1.0) if p < 0.5 else 255 * fade))
+        # tilt the geyser downward about the portal (clockwise facing right, counter-clockwise facing left)
+        _blit_rotated(surf, crop, pivot, Vector2(edge, center_y), -self.TILT_DEG * ctx.facing)
+
+
 SPECIAL_ANIMATIONS = {
+    "knight": KnightSpecialAnim,
+    "mage": MageSpecialAnim,
     "cleric": ClericSpecialAnim,
     "rogue": RogueSpecialAnim,
 }
