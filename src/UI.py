@@ -435,8 +435,8 @@ class ui():
         )
 
         elapsed_time = 0.0
-        MEMORIZE_TIME = 5.0 #Time to memorize the sequence
-        PLAY_TIME = 10.0 #Time to input sequence
+        MEMORIZE_TIME = 3.0 #Time to memorize the sequence
+        PLAY_TIME = 6.0 #Time to input sequence
         total_time_limit = MEMORIZE_TIME + PLAY_TIME
 
         is_minigame_finished = False
