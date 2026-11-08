@@ -31,7 +31,10 @@ def main():
             match training_state:
                 case 1:
                     UI.minigame_1(unit)
-                
+                case 2:
+                    UI.minigame_2(unit)
+                case 3:
+                    UI.minigame_3(unit)
         # w
         battler_obj.start_battle(round_num)
 

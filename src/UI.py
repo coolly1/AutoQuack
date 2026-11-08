@@ -1,3 +1,4 @@
+import math
 import os
 from zoneinfo import available_timezones
 
@@ -9,6 +10,7 @@ from dataclasses import dataclass
 from pygame.math import Vector2
 from accessories import (get_accessories, animation_for, AttackContext, Pose,
                          DUCK_DISPLAY_SIZE, DUCK_SCALE, TRAINING_DUCK_SCALE)
+import random
 
 class ui():
     clock = pygame.time.Clock()
@@ -41,8 +43,7 @@ class ui():
         self.background.fill(pygame.Color('#000000'))
         self.rewards = rewards_panel(bbox=(200,100,400,400), color=(255,255,255), screen=self.window_surface)
         self.is_running = True
-        
-        
+
         for color, path in self.colorPaths.items():
             full_path = os.path.join(BASE_DIR, path)
             full_path = os.path.abspath(full_path)
@@ -211,6 +212,8 @@ class ui():
                 completion_bar.draw(max(0.0, (cur_flaps)/flaps_needed))
                 cloud_1.draw(score+1)
                 cloud_2.draw(score+1)
+                cloud_3.draw(score+1)
+                cloud_4.draw(score+1)
 
                 # Draw panel
                 border_rect = pygame.Rect(343, 76, 93, 93)
@@ -276,6 +279,8 @@ class ui():
                     if return_button and event.ui_element == return_button:
                         return score
 
+                self.window_surface.blit(self.background, (0, 0))
+
                 if total_time_limit >= elapsed_time > MEMORIZE_TIME and not is_minigame_finished:
                     if event.type == pygame.KEYDOWN:
                         try:
@@ -321,6 +326,93 @@ class ui():
             manager.draw_ui(self.window_surface)
             pygame.display.update()
 
+    def minigame_3(self, unit: int):
+        manager = pygame_gui.UIManager((800, 600))
+        BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+        hill_path = os.path.join(BASE_DIR, "../sprites/cliff_side_background.png")
+
+        # self.background.fill(pygame.Color('#87CEEB'))
+        bg_image = pygame.image.load(hill_path).convert()
+
+        # 4. Scale the image to match your window size
+        bg_image = pygame.transform.scale(bg_image, (800, 600))
+        boulder_path = os.path.join(BASE_DIR, "../sprites/rock1.png")
+        boulder_array = []
+        rock = pygame.transform.scale(pygame.image.load(boulder_path).convert_alpha(), (80, 80))
+
+        duck_x = 100
+        duck_y = 450
+        score = 0.0
+        elapsed_time = 0.0
+        is_minigame_finished = False
+        return_button = None
+
+        while self.is_running:
+            time_second = self.clock.tick(60)/1000.0
+            elapsed_time += time_second
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.is_running = False
+                if event.type == pygame_gui.UI_BUTTON_PRESSED:
+                    if return_button and event.ui_element == return_button:
+                        return score
+                manager.process_events(event)
+
+            manager.update(time_second)
+
+            duck_rec = pygame.Rect(duck_x, duck_y, 96, 96)
+            is_touched = False
+
+            for boulder in boulder_array:
+                boulder_rec = pygame.Rect(boulder.x, boulder.y, 96, 96)
+                is_touched = is_touched or boulder_rec.colliderect(duck_rec)
+                if(boulder.y > 600):
+                    score += 0.3
+                    boulder_array.pop(0)
+
+            if(not is_touched):
+                keys = pygame.key.get_pressed()
+
+                if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+                    duck_x = max(duck_x-5, 0)
+
+                if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+                    duck_x = min(duck_x+5, 800-100)
+
+                self.window_surface.blit(bg_image, (0, 0))
+
+                if(elapsed_time > 3/(1+score)):
+                    boulder_array.append(Boulder(image=rock, screen=self.window_surface, x=random.randint(0, 720), y=-100, vel=0, accel=score+1.0))
+                    elapsed_time = 0.0
+
+                for boulder in boulder_array:
+                    boulder.draw(time_second)
+
+                # Draw panel
+                border_rect = pygame.Rect(343, 76, 93, 93)
+                pygame.draw.rect(self.window_surface, (217,217,217), border_rect)
+
+                # calc text
+                font = pygame.font.Font(None, 50)
+                text_surface = font.render(f"{score:.2f}", True, (0, 0, 0))
+
+                # get the text rectangle
+                text_rect = text_surface.get_rect()
+                text_rect.center = (343 + 93/2, 76 + 93/2)
+
+                # draw the text
+                self.window_surface.blit(text_surface, text_rect)
+
+                self.draw_duck2(self.player[unit], duck_x, duck_y)
+
+            elif(not is_minigame_finished):
+                return_button = self.rewards.draw_button(manager)
+                is_minigame_finished = True
+            else:
+                self.rewards.draw(score)
+
+            manager.draw_ui(self.window_surface)
+            pygame.display.update()
 
     def draw_duck2(self, unit:UNIT, x:int, y:int):
         """Training-scene duck (half size, faces right) with its hat and weapon at rest."""
@@ -443,7 +535,7 @@ class rewards_panel():
 
         # calc text
         font = pygame.font.Font(None, 50)
-        text_surface = font.render(str(score), True, (0,0,0))
+        text_surface = font.render(f"{score:.1f}", True, (0,0,0))
 
         # get the text rectangle
         text_rect = text_surface.get_rect()
@@ -500,6 +592,25 @@ class Clouds:
         self.x -= movement
         if(self.x < -200):
             self.x = 1000
+
+        image_rect = self.image.get_rect()
+        image_rect.topleft = (self.x, self.y)
+        self.screen.blit(self.image, image_rect)
+
+@dataclass
+class Boulder:
+    screen: pygame.display
+    image: pygame.image
+    x: int
+    y: int
+    vel: int
+    accel: int
+
+    def reset(self, score, x, y):
+        self.accel = score
+    def draw(self, time):
+        self.vel += self.accel * time
+        self.y += math.floor(self.vel)
 
         image_rect = self.image.get_rect()
         image_rect.topleft = (self.x, self.y)
