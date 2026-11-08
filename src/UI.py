@@ -301,7 +301,7 @@ class ui():
             outer_color= (255, 255, 255),
             screen = self.window_surface,
             sprite_size= 48,
-            columns=5
+            columns=7
         )
 
         elapsed_time = 0.0
@@ -364,6 +364,7 @@ class ui():
                     if current_step >= len(target_sequence):
                         score += 2.0
                         elapsed_time = 0.0
+                        current_step = 0
                         target_sequence = []
                         sequence_length += 1
                         for sequence_idx in range(sequence_length):
@@ -528,7 +529,7 @@ class ui():
         hunger_container = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_container.png").convert_alpha(), (bar_w, bar_h))
         hunger_arrow = pygame.transform.scale(pygame.image.load(sprite_path + "hunger_meter_player_arrow.png").convert_alpha(), (20, target_height))
 
-        hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=50, outer_width=bar_w, arrow_height=target_height)
+        hunger_meter = Hunger_Meter(center_height=player_bar_height, hunger_arrow_image=hunger_arrow, hunger_container=hunger_container, hunger_meter_bottom=hunger_bottom, hunger_meter_center=hunger_center, hunger_meter_top=hunger_top, inner_offset=10, inner_y=100, nubs_height=player_nubs, outer_height=bar_h, outer_y=bar_y, outer_x=bar_x, screen=self.window_surface, target_direction=1, target_vel=50, target_y=bar_y + 100, outer_width=bar_w, arrow_height=target_height)
 
 
         duck_x = 100
@@ -577,6 +578,13 @@ class ui():
 
                 # Draw panel
                 hunger_meter.draw(time_second, delta_y)
+
+                # Time bar across the top (contact time is refunded, so it refills)
+                time_left = max(0.0, min(1.0, (timeout - elapsed_time) / timeout))
+                pygame.draw.rect(self.window_surface, (40, 40, 40), pygame.Rect(0, 0, 800, 20))
+                bar_color = (80, 200, 120) if time_left > 0.5 else (240, 200, 60) if time_left > 0.25 else (220, 60, 60)
+                pygame.draw.rect(self.window_surface, bar_color, pygame.Rect(0, 0, int(800 * time_left), 20))
+                pygame.draw.rect(self.window_surface, (255, 255, 255), pygame.Rect(0, 0, 800, 20), 2)
 
                 border_rect = pygame.Rect(343, 76, 93, 93)
                 pygame.draw.rect(self.window_surface, (217, 217, 217), border_rect)
@@ -975,8 +983,9 @@ class Hunger_Meter:
     arrow_height: int
     def is_contact(self):
         # check collision
-        player_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.inner_y, self.outer_width, self.nubs_height * 2 + self.center_height)
-        target_bbox = pygame.Rect(self.outer_x - self.inner_offset, self.target_y, 50, self.arrow_height)
+        # use the same screen coordinates the sprites are drawn at
+        player_bbox = pygame.Rect(self.outer_x + self.inner_offset, self.inner_y + self.inner_offset, self.outer_width - 2 * self.inner_offset, self.nubs_height * 2 + self.center_height)
+        target_bbox = pygame.Rect(self.outer_x, self.target_y, self.hunger_arrow_image.get_width(), self.arrow_height)
         return player_bbox.colliderect(target_bbox)
 
     def update(self, score):
@@ -987,12 +996,15 @@ class Hunger_Meter:
         self.target_y += self.target_vel * self.target_direction * time
 
         # make sure red target zone doesn't no clip out of frame
-        if self.target_y <= self.outer_y + self.inner_offset:
-            self.target_y = self.outer_y + self.inner_offset
+        # target_y is the arrow's top edge in screen coordinates
+        min_y = self.outer_y + self.inner_offset
+        max_y = self.outer_y + self.outer_height - self.inner_offset - self.arrow_height
+        if self.target_y <= min_y:
+            self.target_y = min_y
             self.target_direction = 1  # Switch to moving down
-        elif self.target_y >= self.outer_height - self.inner_offset:
-            self.target_y = self.outer_height - self.inner_offset
-            self.target_direction = -1  # Switch to moving up        # self.y += math.floor(self.vel)
+        elif self.target_y >= max_y:
+            self.target_y = max_y
+            self.target_direction = -1  # Switch to moving up
 
         self.inner_y += delta_y
 
@@ -1016,5 +1028,5 @@ class Hunger_Meter:
         self.screen.blit(self.hunger_meter_bottom, image_rect)
 
         image_rect = self.hunger_arrow_image.get_rect()
-        image_rect.topleft = (self.outer_x, self.outer_y + self.target_y + self.inner_offset)
+        image_rect.topleft = (self.outer_x, self.target_y)
         self.screen.blit(self.hunger_arrow_image, image_rect)
