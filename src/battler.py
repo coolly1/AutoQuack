@@ -125,7 +125,7 @@ class battler():
             self.schedule_unit(active_unit_idx, prev_priority=prev_priority)
 
             # call GUI
-            self.gui.show_battle(active_unit_idx, affected_units, is_special)
+            self.gui.show_battle(active_unit_idx, affected_units, is_special, enemy_team)
 
         return False
 
