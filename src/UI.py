@@ -194,12 +194,22 @@ class ui():
         self.background.fill(pygame.Color('#87CEEB'))
         time_bar = progress_bar(bbox=(105, 90, 189, 34), inner_color=(255,0,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
         completion_bar = progress_bar(bbox=(505, 90, 189, 34), inner_color=(0,255,0), inner_offset=3, outer_color=(217,217,217), screen=self.window_surface)
-        
+
         BASE_DIR = os.path.dirname(os.path.abspath(__file__))
                 
         cloud = os.path.join(BASE_DIR, "../sprites/cloud")
         cloud = os.path.abspath(cloud)
-        
+
+        down_active = os.path.join(BASE_DIR, "../sprites/down_arrow_active.png")
+        down_disable = os.path.join(BASE_DIR, "../sprites/down_arrow_disable.png")
+        up_active = os.path.join(BASE_DIR, "../sprites/up_arrow_active.png")
+        up_disable = os.path.join(BASE_DIR, "../sprites/up_arrow_disable.png")
+
+        down_active_image = pygame.transform.scale(pygame.image.load(down_active).convert_alpha(), (50, 50))
+        down_disable_image = pygame.transform.scale(pygame.image.load(down_disable).convert_alpha(), (50, 50))
+        up_active_image = pygame.transform.scale(pygame.image.load(up_active).convert_alpha(), (50, 50))
+        up_disable_image = pygame.transform.scale(pygame.image.load(up_disable).convert_alpha(), (50, 50))
+
         cloud_1 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "1.png").convert_alpha(), (269, 153)), screen=self.window_surface, x=69, y=200)
         cloud_2 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "2.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=491, y=353)
         cloud_3 = Clouds(image=pygame.transform.scale(pygame.image.load(cloud + "3.png").convert_alpha(), (179, 146)), screen=self.window_surface, x=891, y=213)
@@ -232,20 +242,24 @@ class ui():
             if(elapsed_time < TIMEOUT):
                 keys = pygame.key.get_just_pressed()
 
+                self.window_surface.blit(self.background, (0, 0))
+
+
                 if keys[pygame.K_UP] or keys[pygame.K_w]:
                     is_up_last_pressed = True
+
+
 
                 if keys[pygame.K_DOWN] or keys[pygame.K_s]:
                     if(is_up_last_pressed):
                         is_up_last_pressed = False
+
                         cur_flaps += 1
                         if(cur_flaps >= flaps_needed):
                             score += 1
                             elapsed_time = 0
                             cur_flaps = 0
                             flaps_needed *= 1.2
-
-                self.window_surface.blit(self.background, (0, 0))
 
                 # start drawing
                 time_bar.draw(max(0.0, (TIMEOUT-elapsed_time)/TIMEOUT))
@@ -254,6 +268,23 @@ class ui():
                 cloud_2.draw(score+1)
                 cloud_3.draw(score+1)
                 cloud_4.draw(score+1)
+
+                if(is_up_last_pressed):
+                    image_rect = up_disable_image.get_rect()
+                    image_rect.topleft = (500, 245)
+                    self.window_surface.blit(up_disable_image, image_rect)
+
+                    image_rect = down_active_image.get_rect()
+                    image_rect.topleft = (500, 305)
+                    self.window_surface.blit(down_active_image, image_rect)
+                else:
+                    image_rect = up_active_image.get_rect()
+                    image_rect.topleft = (500, 245)
+                    self.window_surface.blit(up_active_image, image_rect)
+
+                    image_rect = down_disable_image.get_rect()
+                    image_rect.topleft = (500, 305)
+                    self.window_surface.blit(down_disable_image, image_rect)
 
                 # Draw panel
                 border_rect = pygame.Rect(343, 76, 93, 93)
