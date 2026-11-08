@@ -37,8 +37,10 @@ class COLOR(Enum):
 
 
 class TRAINABLE_STAT(Enum):
-    ATK = 1
-    SPK = 2
+    HP  = 1
+    ATK = 2
+    SPD = 3
+    SPK = 4
 
 class SPECIAL(Enum):
     SOOTHING_QUACK = "Soothing Quack"
@@ -77,7 +79,7 @@ class UNIT:
     max_health: int
     base_health: int
     current_health: int
-    #health growth
+    health_growth: int
 
     attack_dmg: int
     base_attack_dmg: int
@@ -90,7 +92,7 @@ class UNIT:
 
     speed: int
     base_speed: int
-    #speed growth
+    speed_growth: int
 
     max_charge: int
     current_charge: int = 0
@@ -100,12 +102,14 @@ class UNIT:
     rand = random.Random()
     color: COLOR
 
-    def __init__(self, base_health, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
+    def __init__(self, base_health, health_growth, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, speed_growth, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 
         self.base_max_health = base_health
+        self.health_growth = health_growth
         self.base_attack_dmg = base_attack_dmg
         self.base_special_attack = base_special_attack
         self.base_speed = base_speed
+        self.speed_growth = speed_growth
 
         self.attack_dmg_growth = attack_dmg_growth
         self.special_attack_growth = special_attack_growth
@@ -120,9 +124,14 @@ class UNIT:
 
     def train(self, stat_num: TRAINABLE_STAT, score):
         match stat_num:
+            case TRAINABLE_STAT.HP:
+                self.base_max_health += self.health_growth * score
+            
             case TRAINABLE_STAT.ATK:
                 self.base_attack_dmg += self.attack_dmg_growth * score
 
+            case TRAINABLE_STAT.SPD:
+                self.base_speed += self.speed_growth * score    
             case TRAINABLE_STAT.SPK:
                 self.base_special_attack += self.special_attack_growth * score
             case _:
