@@ -935,7 +935,7 @@ class stat_panel():
             ("Attack", unit.attack_dmg),
             ("Speed", unit.speed),
             ("Ability", unit.special_attack),
-            {"Charge", unit.max_charge},
+            ("Charge", unit.max_charge),
         ]
         y = rect.y + 50
         for label, value in rows:
