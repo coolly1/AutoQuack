@@ -1,7 +1,6 @@
 MAX_TURNS = 100
 
-from Units import UNIT
-from Units import TARGET
+from Units import UNIT, TARGET, load_unit
 from UI import ui
 import heapq
 import random
@@ -24,7 +23,8 @@ class battler():
         random.seed(SEED_RAND)
 
     def get_enemy_list(self, round_idx: int) -> list[UNIT]:
-        return []
+        return [load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
+              load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
 
     def start_battle(self, round_idx: int) -> bool:
         """
@@ -48,7 +48,7 @@ class battler():
             self.schedule_unit(unit_idx, 0.0)
             self.units[unit_idx].reset_for_battle()
         for turn_order in range(MAX_TURNS):
-            (prev_priority, turn_id, active_unit_idx) = heapq.heappop(self.turn_order_pq)
+            prev_priority, turn_id, active_unit_idx = heapq.heappop(self.turn_order_pq)
 
             # if UNIT is dead then continue
             if(self.units[active_unit_idx].is_dead()):
@@ -117,5 +117,5 @@ class battler():
     def schedule_unit(self, unit_idx, prev_priority):
 
         unit = self.units[unit_idx]
-        heapq.heappush(self.turn_order_pq, (prev_priority + (1 / unit.speed), self.turn_id, unit_idx, unit))
+        heapq.heappush(self.turn_order_pq, (prev_priority + (1 / unit.speed), self.turn_id, unit_idx))
         self.turn_id += 1

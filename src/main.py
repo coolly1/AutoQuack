@@ -1,5 +1,5 @@
 from UI import ui
-from Units import UNIT, TARGET, SPECIAL
+from Units import load_unit
 from battler import battler
 
 MAX_ROUNDS = 2
@@ -14,9 +14,10 @@ def main():
     # pick ducks screens
 
     #init_player
-    #player = [load_unit("file1"), load_unit("file2"), load_unit("file3"), load_unit("file4")]
+    player = [load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv"),
+              load_unit("AutoQuack/data/peasant.csv"), load_unit("AutoQuack/data/peasant.csv")]
 
-    #battler = battler(ui, player)
+    # battler_obj = battler(player, UI)
 
     for round_num in range(MAX_ROUNDS):
         # reset unit damage and charge
@@ -31,8 +32,8 @@ def main():
                 case 1:
                     UI.minigame_1(unit)
                 
-        pass
         # w
+        # battler_obj.start_battle(round_num)
 
     # show training, a
 
