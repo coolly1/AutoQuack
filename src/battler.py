@@ -17,7 +17,7 @@ class battler():
     units: list[UNIT]
     GUI: ui
 
-    def __init__(self, player_team: list, gui: ui):
+    def __init__(self, player_team: list, gui: ui | None):
         self.player_team = player_team
         self.gui = gui
         random.seed(SEED_RAND)
@@ -26,8 +26,8 @@ class battler():
         average_score = 8
         match round_idx:
             case 0:
-                 enemy = [load_unit("../data/rogue.csv"), load_unit("../data/rogue.csv"),
-                          load_unit("../data/rogue.csv"), load_unit("../data/rogue.csv")]
+                 enemy = [load_unit("../data/cleric.csv"), load_unit("../data/cleric.csv"),
+                          load_unit("../data/knight.csv"), load_unit("../data/mage.csv")]
                  enemy[2].train(TRAINABLE_STAT.SPD, average_score)
                  enemy[2].train(TRAINABLE_STAT.ATK, average_score)
                  enemy[0].train(TRAINABLE_STAT.HP, average_score)
@@ -42,13 +42,14 @@ class battler():
                          load_unit("../data/cleric.csv"), load_unit("../data/mage.csv")]
                 return enemy
 
-    def start_battle(self, round_idx: int) -> bool:
+    def start_battle(self, round_idx: int, enemy_team: list[UNIT]) -> bool:
         """
         :return: bool if player won or loss
         """
 
         # get the enemies
-        enemy_team: list[UNIT] = self.get_enemy_list(round_idx)
+        if(enemy_team == []):
+            enemy_team = self.get_enemy_list(round_idx)
 
         self.turn_id = 0
         self.turn_order_pq =[]
@@ -87,7 +88,7 @@ class battler():
             match target:
                 case TARGET.FRONT:
                     affected_units.append(teams[target_team][fronts[target_team]])
-                    print(f"Duck Idx {active_unit_idx} dealt to {fronts[target_team] + target_team * 4} idx, health was {teams[target_team][fronts[target_team]].current_health}")
+                    # print(f"Duck Idx {active_unit_idx} dealt to {fronts[target_team] + target_team * 4} idx, health was {teams[target_team][fronts[target_team]].current_health}")
                 case TARGET.BACK:
                     affected_units.append(teams[target_team][backs[target_team]])
                 case TARGET.SELF:
@@ -112,7 +113,8 @@ class battler():
 
             
             # call GUI
-            self.gui.show_battle(active_unit_idx, affected_units, is_special, enemy_team)
+            if(self.gui):
+                self.gui.show_battle(active_unit_idx, affected_units, is_special, enemy_team)
             
             # apply effects
             for unit in affected_units:
@@ -123,7 +125,7 @@ class battler():
             while(teams[team_idx][fronts[team_idx]].is_dead()):
                 fronts[team_idx] -= 1
                 if(fronts[team_idx] < backs[team_idx]):
-                    print(team_idx == 1)
+                    # print(team_idx == 1)
                     return team_idx == 1
 
             while(teams[team_idx][backs[team_idx]].is_dead()):
@@ -134,7 +136,7 @@ class battler():
             while(teams[team_idx][fronts[team_idx]].is_dead()):
                 fronts[team_idx] += 1
                 if(fronts[team_idx] > backs[team_idx]):
-                    print(team_idx == 1)
+                    # print(team_idx == 1)
                     return team_idx == 1
 
             while(teams[team_idx][backs[team_idx]].is_dead()):

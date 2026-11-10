@@ -54,10 +54,10 @@ def main():
                         break
 
                 # w
-            win = battler_obj.start_battle(round_num)
+            win = battler_obj.start_battle(round_num, [])
             if(not win):
                 break
-        UI.show_end_screen(win);
+        UI.show_end_screen(win)
         UI.player = []
 
 if __name__ == '__main__':
