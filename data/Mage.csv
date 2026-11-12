@@ -1,2 +1,2 @@
 #base_hp, hp_growth, base_atk, atk_growth, base_spk, spk_growth, base_speed, spd_growth, max_charge, path, normal_target, special_action
-70,1,2,1,6,2,35,3,3,AutoQuack/sprites/ducks/units/mage,1,Abyssal Splash
+40,4,10,1,30,3,20,2,5,AutoQuack/sprites/ducks/units/mage,1,Abyssal Splash

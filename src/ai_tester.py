@@ -89,7 +89,9 @@ class Team:
 
                 opponent.apply_trainings(AVG_TRAINING)
                 try:
-                    score += team_battler.start_battle(1, opponent.team)
+                    # this is nessary since the front and back flips based on what side you are on
+                    opponent_team_flipped = opponent.team[::-1]
+                    score += team_battler.start_battle(1, opponent_team_flipped)
                 finally:
                     opponent.apply_trainings(-AVG_TRAINING)
 

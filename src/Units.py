@@ -1,6 +1,7 @@
 from enum import Enum
 import os
 import random
+from status import *
 
 def load_unit(file):
     data = []
@@ -67,7 +68,7 @@ def bill_beatdown(caster):
 
 def abyssal_splash(caster):
     """Deals medium damage to all targets on enemy team"""
-    damage = caster.special_attack * 2.5
+    damage = caster.special_attack * 1.0
     return (round(damage), TARGET.TEAM, False, True)
 
 def ducky_defense(caster):
@@ -102,6 +103,8 @@ class UNIT:
     rand = random.Random()
     color: COLOR
 
+    status_lists: list[list[Status]]
+
     def __init__(self, base_health, health_growth, base_attack_dmg, attack_dmg_growth, base_special_attack, special_attack_growth, base_speed, speed_growth, max_charge, path, normal_target: TARGET,special_action: SPECIAL):
 
         self.base_max_health = base_health
@@ -119,8 +122,15 @@ class UNIT:
         self.special_action = special_action
         self.path = path
         self.reset_for_battle()
-        
+
         self.color = COLOR(self.rand.randint(1, 4))
+
+        self.status_lists = []
+        for status_trigger in STATUS_TRIGGERS:
+            self.status_lists.append([])
+
+        # if (path == "AutoQuack/sprites/ducks/units/knight"):
+        #     self.status_lists[STATUS_TRIGGERS.ON_RECV_DAMAGE.value[0]].append(defense_5)
 
     def train(self, stat_num: TRAINABLE_STAT, score):
         match stat_num:
@@ -181,6 +191,11 @@ class UNIT:
     def apply_damage(self, amount):
         if self.is_dead():
             return
+
+        # apply any status
+        for status in self.status_lists[STATUS_TRIGGERS.ON_RECV_DAMAGE.value[0]]:
+            amount = status.apply(self, amount)
+
         self.current_health = min(self.max_health, max(0, self.current_health - amount))
 
     def __str__(self):

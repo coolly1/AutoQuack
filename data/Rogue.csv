@@ -1,2 +1,2 @@
 #base_hp, hp_growth, base_atk, atk_growth, base_spk, spk_growth, base_speed, spd_growth, max_charge, path, normal_target, special_action
-60,1,2,2,4,1,85,4,5,AutoQuack/sprites/ducks/units/rogue,2,The Final Quack
+40,4,10,1,20,2,30,3,3,AutoQuack/sprites/ducks/units/rogue,2,The Final Quack
